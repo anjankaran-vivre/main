@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OPS Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      background: #f4f7fb;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+  </style>
+</head>
+
+<body class="p-6">
+
+  <!-- HEADER -->
+  <div class="flex justify-between items-start mb-6">
+    <h1 class="text-3xl font-bold">OPS OUT TICKET DASHBOARD</h1>
+
+    <!-- Employee Status Table -->
+    <div class="card w-[380px]">
+      <h2 class="text-xl font-semibold mb-3">Employee Status</h2>
+
+      <table class="w-full text-left text-sm" id="employeeStatusTable">
+        <thead>
+          <tr class="border-b">
+            <th class="py-1">Employee</th>
+            <th class="py-1">Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ZONE CARDS -->
+  <h2 class="text-2xl font-semibold mb-2">Zone Wise Summary</h2>
+
+  <div id="zoneCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"></div>
+
+  <!-- DAILY TABLE -->
+  <h2 class="text-2xl font-semibold mb-3">Daily Summary</h2>
+
+  <div class="card">
+    <table class="w-full text-left text-sm" id="dailyTable">
+      <thead>
+        <tr class="border-b">
+          <th class="py-1">Zone</th>
+          <th class="py-1">Total Inquiry</th>
+          <th class="py-1">Assignee</th>
+          <th class="py-1">Total Count</th>
+          <th class="py-1">Missed Reply</th>
+          <th class="py-1">Missed Order</th>
+          <th class="py-1">Missed Update</th>
+          <th class="py-1">Wrong Reply</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+
+  <!-- SCRIPT -->
+  <script>
+    const API_URL = "https://script.google.com/a/macros/vivrepanels.com/s/AKfycbyeq89mMh7t7Gb6goJpNJcMPUQF-7ermjYKewuk3L8Be9CKeJyOqRmdVUM3dzo44zAm/exec";
+
+    async function loadDashboard() {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+
+      renderEmployeeStatus(data.loginStatus);
+      renderZoneCards(data.dailyData, data.monthlyData);
+      renderDailyTable(data.dailyData);
+    }
+
+    // ----------------------------------------------------------
+    // EMPLOYEE STATUS TABLE WITH COLOR BADGES
+    // ----------------------------------------------------------
+    function statusBadge(status) {
+      status = status.toLowerCase();
+
+      if (status.includes("active"))
+        return `<span class="px-2 py-1 rounded bg-green-100 text-green-700 text-xs">🟢 Active</span>`;
+
+      if (status.includes("break"))
+        return `<span class="px-2 py-1 rounded bg-yellow-100 text-yellow-700 text-xs">🟡 Break</span>`;
+
+      if (status.includes("lunch"))
+        return `<span class="px-2 py-1 rounded bg-purple-100 text-purple-700 text-xs">🟣 Lunch</span>`;
+
+      return `<span class="px-2 py-1 rounded bg-red-100 text-red-700 text-xs">🔴 Inactive</span>`;
+    }
+
+    function renderEmployeeStatus(list) {
+      const tbody = document.querySelector("#employeeStatusTable tbody");
+      tbody.innerHTML = "";
+
+      list.forEach(row => {
+        tbody.innerHTML += `
+          <tr class="border-b">
+            <td class="py-1">${row.employee}</td>
+            <td class="py-1">${statusBadge(row.status)}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // ----------------------------------------------------------
+    // ZONE CARDS WITH DAILY + MONTHLY
+    // ----------------------------------------------------------
+    function renderZoneCards(daily, monthly) {
+      const container = document.getElementById("zoneCards");
+      container.innerHTML = "";
+
+      daily.forEach((d, i) => {
+        const m = monthly[i];
+
+        container.innerHTML += `
+          <div class="card">
+            <h3 class="text-xl font-semibold mb-3">${d.zone}</h3>
+
+            <!-- DAILY -->
+            <h4 class="font-semibold text-blue-600 mb-1">Daily</h4>
+            <div class="text-sm mb-3">
+              <p>Total Inquiry: <b>${d.totalInquiries}</b></p>
+              <p>Assignee: <b>${d.assignee}</b></p>
+              <p>Total Count: <b>${d.totalCount}</b></p>
+              <p>Missed Reply: <b>${d.missedReply}</b></p>
+              <p>Missed Order: <b>${d.missedOrder}</b></p>
+              <p>Missed Update: <b>${d.missedUpdate}</b></p>
+              <p>Wrong Reply: <b>${d.wrongReply}</b></p>
+            </div>
+
+            <!-- MONTHLY -->
+            <h4 class="font-semibold text-green-600 mb-1">Monthly</h4>
+            <div class="text-sm">
+              <p>Total Inquiry: <b>${m.totalInquiries}</b></p>
+              <p>Assignee: <b>${m.assignee}</b></p>
+              <p>Total Count: <b>${m.totalCount}</b></p>
+              <p>Missed Reply: <b>${m.missedReply}</b></p>
+              <p>Missed Order: <b>${m.missedOrder}</b></p>
+              <p>Missed Update: <b>${m.missedUpdate}</b></p>
+              <p>Wrong Reply: <b>${m.wrongReply}</b></p>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // ----------------------------------------------------------
+    // DAILY TABLE (BOTTOM)
+    // ----------------------------------------------------------
+    function renderDailyTable(data) {
+      const tbody = document.querySelector("#dailyTable tbody");
+      tbody.innerHTML = "";
+
+      data.forEach(r => {
+        tbody.innerHTML += `
+          <tr class="border-b">
+            <td class="py-1">${r.zone}</td>
+            <td class="py-1">${r.totalInquiries}</td>
+            <td class="py-1">${r.assignee}</td>
+            <td class="py-1">${r.totalCount}</td>
+            <td class="py-1">${r.missedReply}</td>
+            <td class="py-1">${r.missedOrder}</td>
+            <td class="py-1">${r.missedUpdate}</td>
+            <td class="py-1">${r.wrongReply}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // Load everything
+    loadDashboard();
+  </script>
+
+</body>
+</html>
