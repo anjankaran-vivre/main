@@ -5,181 +5,363 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>OPS Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <style>
     body {
-      background: #f4f7fb;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
-    .card {
-      background: white;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-card {
+      transition: all 0.3s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+    .zone-card {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .zone-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
   </style>
 </head>
 
 <body class="p-6">
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- HEADER SECTION -->
+    <div class="flex justify-between items-start mb-8 gap-6">
+      <div class="flex-1">
+        <h1 class="text-5xl font-extrabold text-white mb-2">OPS OUT TICKET DASHBOARD</h1>
+        <p class="text-white text-opacity-90 text-lg">Real-time Performance Overview</p>
+      </div>
 
-  <!-- HEADER -->
-  <div class="flex justify-between items-start mb-6">
-    <h1 class="text-3xl font-bold">OPS OUT TICKET DASHBOARD</h1>
-
-    <!-- Employee Status Table -->
-    <div class="card w-[380px]">
-      <h2 class="text-xl font-semibold mb-3">Employee Status</h2>
-
-      <table class="w-full text-left text-sm" id="employeeStatusTable">
-        <thead>
-          <tr class="border-b">
-            <th class="py-1">Employee</th>
-            <th class="py-1">Status</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <!-- Employee Status Card -->
+      <div class="glass-card w-[400px] p-6">
+        <h2 class="text-2xl font-bold gradient-text mb-4">Employee Status</h2>
+        <div class="space-y-3 max-h-[400px] overflow-y-auto" id="employeeStatusContainer">
+          <!-- Employee status will be populated here -->
+        </div>
+      </div>
     </div>
+
+    <!-- TOP STATS CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="glass-card stat-card p-6" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="text-white text-opacity-90 text-sm font-medium mb-2">Total Inquiries</div>
+        <div id="totalInquiries" class="text-5xl font-bold text-white">0</div>
+      </div>
+      <div class="glass-card stat-card p-6" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+        <div class="text-white text-opacity-90 text-sm font-medium mb-2">Total Tickets</div>
+        <div id="totalTickets" class="text-5xl font-bold text-white">0</div>
+      </div>
+      <div class="glass-card stat-card p-6" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+        <div class="text-white text-opacity-90 text-sm font-medium mb-2">Missed Replies</div>
+        <div id="totalMissedReply" class="text-5xl font-bold text-white">0</div>
+      </div>
+      <div class="glass-card stat-card p-6" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+        <div class="text-white text-opacity-90 text-sm font-medium mb-2">Missed Orders</div>
+        <div id="totalMissedOrder" class="text-5xl font-bold text-white">0</div>
+      </div>
+    </div>
+
+    <!-- ZONE CARDS -->
+    <h2 class="text-3xl font-bold text-white mb-4">Zone Wise Summary</h2>
+    <div id="zoneCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"></div>
+
+    <!-- CHART SECTION -->
+    <div class="glass-card p-8 mb-8">
+      <h2 class="text-2xl font-bold gradient-text mb-6">Zone-wise Ticket Analysis</h2>
+      <div class="w-full" style="height:400px;">
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+
+    <!-- DAILY SUMMARY TABLE -->
+    <div class="glass-card overflow-hidden">
+      <div class="p-6 bg-gradient-to-r from-purple-600 to-indigo-600">
+        <h2 class="text-3xl font-bold text-white">Daily Summary</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-4 text-sm font-bold text-gray-700">Zone</th>
+              <th class="px-6 py-4 text-sm font-bold text-gray-700">Assignee</th>
+              <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Total Inquiry</th>
+              <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Total Count</th>
+              <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Reply</th>
+              <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Order</th>
+              <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Update</th>
+              <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Wrong Reply</th>
+            </tr>
+          </thead>
+          <tbody id="dailyTableBody" class="bg-white"></tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
-  <!-- ZONE CARDS -->
-  <h2 class="text-2xl font-semibold mb-2">Zone Wise Summary</h2>
-
-  <div id="zoneCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"></div>
-
-  <!-- DAILY TABLE -->
-  <h2 class="text-2xl font-semibold mb-3">Daily Summary</h2>
-
-  <div class="card">
-    <table class="w-full text-left text-sm" id="dailyTable">
-      <thead>
-        <tr class="border-b">
-          <th class="py-1">Zone</th>
-          <th class="py-1">Total Inquiry</th>
-          <th class="py-1">Assignee</th>
-          <th class="py-1">Total Count</th>
-          <th class="py-1">Missed Reply</th>
-          <th class="py-1">Missed Order</th>
-          <th class="py-1">Missed Update</th>
-          <th class="py-1">Wrong Reply</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-
-  <!-- SCRIPT -->
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzTIupkSmRxfyGJuDsktonVW015RkXjSRfs-Ufd5aDmSKD85bMCnfY8pWSxzU9wBHHw/exec";
 
-    async function loadDashboard() {
-      const res = await fetch(API_URL);
-      const data = await res.json();
+    const colorMapping = [
+      { color: '#667eea', bgColor: 'bg-purple-500', gradient: 'from-purple-500 to-indigo-500' },
+      { color: '#10B981', bgColor: 'bg-green-500', gradient: 'from-green-500 to-emerald-500' },
+      { color: '#F59E0B', bgColor: 'bg-amber-500', gradient: 'from-amber-500 to-orange-500' },
+      { color: '#EF4444', bgColor: 'bg-red-500', gradient: 'from-red-500 to-pink-500' }
+    ];
 
-      renderEmployeeStatus(data.loginStatus);
-      renderZoneCards(data.dailyData, data.monthlyData);
-      renderDailyTable(data.dailyData);
+    async function loadDashboard() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        renderEmployeeStatus(data.loginStatus);
+        renderTopStats(data.dailyData);
+        renderZoneCards(data.dailyData, data.monthlyData);
+        renderChart(data.dailyData);
+        renderDailyTable(data.dailyData);
+      } catch (err) {
+        console.error('Error loading dashboard:', err);
+      }
     }
 
-    // ----------------------------------------------------------
-    // EMPLOYEE STATUS TABLE WITH COLOR BADGES
-    // ----------------------------------------------------------
     function statusBadge(status) {
       status = status.toLowerCase();
-
+      
       if (status.includes("active"))
-        return `<span class="px-2 py-1 rounded bg-green-100 text-green-700 text-xs">🟢 Active</span>`;
-
+        return `<span class="status-badge" style="background: #10b981; color: white;">🟢 Active</span>`;
       if (status.includes("break"))
-        return `<span class="px-2 py-1 rounded bg-yellow-100 text-yellow-700 text-xs">🟡 Break</span>`;
-
+        return `<span class="status-badge" style="background: #f59e0b; color: white;">🟡 Break</span>`;
       if (status.includes("lunch"))
-        return `<span class="px-2 py-1 rounded bg-purple-100 text-purple-700 text-xs">🟣 Lunch</span>`;
-
-      return `<span class="px-2 py-1 rounded bg-red-100 text-red-700 text-xs">🔴 Inactive</span>`;
+        return `<span class="status-badge" style="background: #8b5cf6; color: white;">🟣 Lunch</span>`;
+      
+      return `<span class="status-badge" style="background: #ef4444; color: white;">🔴 Inactive</span>`;
     }
 
     function renderEmployeeStatus(list) {
-      const tbody = document.querySelector("#employeeStatusTable tbody");
-      tbody.innerHTML = "";
+      const container = document.getElementById('employeeStatusContainer');
+      container.innerHTML = '';
 
       list.forEach(row => {
-        tbody.innerHTML += `
-          <tr class="border-b">
-            <td class="py-1">${row.employee}</td>
-            <td class="py-1">${statusBadge(row.status)}</td>
-          </tr>
+        const div = document.createElement('div');
+        div.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition';
+        div.innerHTML = `
+          <span class="font-semibold text-gray-800">${row.employee}</span>
+          ${statusBadge(row.status)}
         `;
+        container.appendChild(div);
       });
     }
 
-    // ----------------------------------------------------------
-    // ZONE CARDS WITH DAILY + MONTHLY
-    // ----------------------------------------------------------
+    function renderTopStats(dailyData) {
+      const totalInquiries = dailyData.reduce((sum, z) => sum + (Number(z.totalInquiries) || 0), 0);
+      const totalTickets = dailyData.reduce((sum, z) => sum + (Number(z.totalCount) || 0), 0);
+      const totalMissedReply = dailyData.reduce((sum, z) => sum + (Number(z.missedReply) || 0), 0);
+      const totalMissedOrder = dailyData.reduce((sum, z) => sum + (Number(z.missedOrder) || 0), 0);
+
+      document.getElementById('totalInquiries').textContent = totalInquiries;
+      document.getElementById('totalTickets').textContent = totalTickets;
+      document.getElementById('totalMissedReply').textContent = totalMissedReply;
+      document.getElementById('totalMissedOrder').textContent = totalMissedOrder;
+    }
+
     function renderZoneCards(daily, monthly) {
-      const container = document.getElementById("zoneCards");
-      container.innerHTML = "";
+      const container = document.getElementById('zoneCards');
+      container.innerHTML = '';
 
       daily.forEach((d, i) => {
         const m = monthly[i];
+        const colors = colorMapping[i] || colorMapping[0];
 
-        container.innerHTML += `
-          <div class="card">
-            <h3 class="text-xl font-semibold mb-3">${d.zone}</h3>
+        const card = document.createElement('div');
+        card.className = 'glass-card zone-card p-6 fade-in';
+        card.style.animationDelay = `${i * 0.1}s`;
+        card.style.borderTop = `4px solid ${colors.color}`;
 
-            <!-- DAILY -->
-            <h4 class="font-semibold text-blue-600 mb-1">Daily</h4>
-            <div class="text-sm mb-3">
-              <p>Total Inquiry: <b>${d.totalInquiries}</b></p>
-              <p>Assignee: <b>${d.assignee}</b></p>
-              <p>Total Count: <b>${d.totalCount}</b></p>
-              <p>Missed Reply: <b>${d.missedReply}</b></p>
-              <p>Missed Order: <b>${d.missedOrder}</b></p>
-              <p>Missed Update: <b>${d.missedUpdate}</b></p>
-              <p>Wrong Reply: <b>${d.wrongReply}</b></p>
+        const totalCount = Number(d.totalCount) || 0;
+        const missedReplyPercent = totalCount ? ((Number(d.missedReply) / totalCount) * 100).toFixed(1) : '0.0';
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-bold text-gray-800">${d.zone}</h3>
+            <div class="w-14 h-14 rounded-full bg-gradient-to-br ${colors.gradient} flex items-center justify-center text-white text-xl font-bold shadow-lg">
+              ${totalCount}
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <div class="text-sm text-gray-600 mb-1">Assignee</div>
+            <div class="font-semibold text-gray-800">${d.assignee}</div>
+          </div>
+
+          <div class="space-y-4 mb-4">
+            <div>
+              <div class="text-xs font-semibold text-blue-600 mb-2">📊 DAILY</div>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Total Inquiry:</span>
+                  <span class="font-bold">${d.totalInquiries}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Missed Reply:</span>
+                  <span class="font-bold text-red-600">${d.missedReply}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Missed Order:</span>
+                  <span class="font-bold text-orange-600">${d.missedOrder}</span>
+                </div>
+              </div>
             </div>
 
-            <!-- MONTHLY -->
-            <h4 class="font-semibold text-green-600 mb-1">Monthly</h4>
-            <div class="text-sm">
-              <p>Total Inquiry: <b>${m.totalInquiries}</b></p>
-              <p>Assignee: <b>${m.assignee}</b></p>
-              <p>Total Count: <b>${m.totalCount}</b></p>
-              <p>Missed Reply: <b>${m.missedReply}</b></p>
-              <p>Missed Order: <b>${m.missedOrder}</b></p>
-              <p>Missed Update: <b>${m.missedUpdate}</b></p>
-              <p>Wrong Reply: <b>${m.wrongReply}</b></p>
+            <div class="pt-3 border-t">
+              <div class="text-xs font-semibold text-green-600 mb-2">📈 MONTHLY</div>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Total Inquiry:</span>
+                  <span class="font-bold">${m.totalInquiries}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Missed Reply:</span>
+                  <span class="font-bold text-red-600">${m.missedReply}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Missed Order:</span>
+                  <span class="font-bold text-orange-600">${m.missedOrder}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between mb-1 text-xs">
+              <span class="text-gray-600 font-medium">Miss Rate</span>
+              <span class="font-bold">${missedReplyPercent}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-gradient-to-r ${colors.gradient} h-2 rounded-full transition-all duration-500" style="width:${missedReplyPercent}%"></div>
             </div>
           </div>
         `;
+
+        container.appendChild(card);
       });
     }
 
-    // ----------------------------------------------------------
-    // DAILY TABLE (BOTTOM)
-    // ----------------------------------------------------------
+    function renderChart(data) {
+      const ctx = document.getElementById('barChart').getContext('2d');
+      
+      if (window.dashboardChart) {
+        window.dashboardChart.destroy();
+      }
+
+      const labels = data.map(z => z.zone);
+      const missedReply = data.map(z => Number(z.missedReply) || 0);
+      const missedOrder = data.map(z => Number(z.missedOrder) || 0);
+      const missedUpdate = data.map(z => Number(z.missedUpdate) || 0);
+      const wrongReply = data.map(z => Number(z.wrongReply) || 0);
+
+      window.dashboardChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Missed Reply', data: missedReply, backgroundColor: '#667eea', borderRadius: 8 },
+            { label: 'Missed Order', data: missedOrder, backgroundColor: '#f5576c', borderRadius: 8 },
+            { label: 'Missed Update', data: missedUpdate, backgroundColor: '#4facfe', borderRadius: 8 },
+            { label: 'Wrong Reply', data: wrongReply, backgroundColor: '#10b981', borderRadius: 8 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 12, weight: 'bold' }, padding: 15 } },
+            tooltip: { mode: 'index', intersect: false }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true, grid: { color: '#e5e7eb' } }
+          }
+        }
+      });
+    }
+
     function renderDailyTable(data) {
-      const tbody = document.querySelector("#dailyTable tbody");
-      tbody.innerHTML = "";
+      const tbody = document.getElementById('dailyTableBody');
+      tbody.innerHTML = '';
 
-      data.forEach(r => {
-        tbody.innerHTML += `
-          <tr class="border-b">
-            <td class="py-1">${r.zone}</td>
-            <td class="py-1">${r.totalInquiries}</td>
-            <td class="py-1">${r.assignee}</td>
-            <td class="py-1">${r.totalCount}</td>
-            <td class="py-1">${r.missedReply}</td>
-            <td class="py-1">${r.missedOrder}</td>
-            <td class="py-1">${r.missedUpdate}</td>
-            <td class="py-1">${r.wrongReply}</td>
-          </tr>
+      data.forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = `${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-purple-50 transition`;
+        
+        const colors = colorMapping[idx] || colorMapping[0];
+        
+        tr.innerHTML = `
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-3 h-3 rounded-full ${colors.bgColor}"></div>
+              <span class="font-semibold text-gray-800">${row.zone}</span>
+            </div>
+          </td>
+          <td class="px-6 py-4 text-gray-700">${row.assignee}</td>
+          <td class="px-6 py-4 text-center font-semibold text-gray-800">${row.totalInquiries}</td>
+          <td class="px-6 py-4 text-center">
+            <span class="px-3 py-1 bg-gradient-to-r ${colors.gradient} text-white rounded-full font-bold text-sm">
+              ${row.totalCount}
+            </span>
+          </td>
+          <td class="px-6 py-4 text-center font-semibold text-blue-600">${row.missedReply}</td>
+          <td class="px-6 py-4 text-center font-semibold text-red-600">${row.missedOrder}</td>
+          <td class="px-6 py-4 text-center font-semibold text-amber-600">${row.missedUpdate}</td>
+          <td class="px-6 py-4 text-center font-semibold text-green-600">${row.wrongReply}</td>
         `;
+        
+        tbody.appendChild(tr);
       });
     }
 
-    // Load everything
+    // Load dashboard on page load
     loadDashboard();
+
+    // Auto-refresh every 60 seconds
+    setInterval(loadDashboard, 60000);
   </script>
 
 </body>
