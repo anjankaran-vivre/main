@@ -416,96 +416,141 @@
   }
 
   function openModal(monthData, dailyData) {
-    const modal = document.getElementById('detailModal');
-    const title = document.getElementById('modalTitle');
-    const content = document.getElementById('modalContent');
+  const modal = document.getElementById('detailModal');
+  const title = document.getElementById('modalTitle');
+  const content = document.getElementById('modalContent');
 
-    title.textContent = `${monthData.zone} - Detailed Report`;
+  title.textContent = `${monthData.zone} - Detailed Report`;
 
-    const mTotal = Number(monthData.totalCount) || 0;
-    const mMissedReplyRate = mTotal ? ((Number(monthData.missedReply) / mTotal) * 100).toFixed(1) : '0.0';
-    const mMissedOrderRate = mTotal ? ((Number(monthData.missedOrder) / mTotal) * 100).toFixed(1) : '0.0';
-    const mMissedUpdateRate = mTotal ? ((Number(monthData.missedUpdate) / mTotal) * 100).toFixed(1) : '0.0';
-    const mWrongReplyRate = mTotal ? ((Number(monthData.wrongReply) / mTotal) * 100).toFixed(1) : '0.0';
+  const mTotal = Number(monthData.totalCount) || 0;
+  const mMissedReplyRate = mTotal ? ((Number(monthData.missedReply) / mTotal) * 100).toFixed(1) : '0.0';
+  const mMissedOrderRate = mTotal ? ((Number(monthData.missedOrder) / mTotal) * 100).toFixed(1) : '0.0';
+  const mMissedUpdateRate = mTotal ? ((Number(monthData.missedUpdate) / mTotal) * 100).toFixed(1) : '0.0';
+  const mWrongReplyRate = mTotal ? ((Number(monthData.wrongReply) / mTotal) * 100).toFixed(1) : '0.0';
 
-    const dTotal = Number(dailyData.totalCount) || 0;
-    const dMissedReplyRate = dTotal ? ((Number(dailyData.missedReply) / dTotal) * 100).toFixed(1) : '0.0';
-    const dMissedOrderRate = dTotal ? ((Number(dailyData.missedOrder) / dTotal) * 100).toFixed(1) : '0.0';
-    const dMissedUpdateRate = dTotal ? ((Number(dailyData.missedUpdate) / dTotal) * 100).toFixed(1) : '0.0';
-    const dWrongReplyRate = dTotal ? ((Number(dailyData.wrongReply) / dTotal) * 100).toFixed(1) : '0.0';
+  const dTotal = Number(dailyData.totalCount) || 0;
+  const dMissedReplyRate = dTotal ? ((Number(dailyData.missedReply) / dTotal) * 100).toFixed(1) : '0.0';
+  const dMissedOrderRate = dTotal ? ((Number(dailyData.missedOrder) / dTotal) * 100).toFixed(1) : '0.0';
+  const dMissedUpdateRate = dTotal ? ((Number(dailyData.missedUpdate) / dTotal) * 100).toFixed(1) : '0.0';
+  const dWrongReplyRate = dTotal ? ((Number(dailyData.wrongReply) / dTotal) * 100).toFixed(1) : '0.0';
 
-    content.innerHTML = `
+  content.innerHTML = `
+    <!-- Top Info -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div class="bg-blue-50 p-4 rounded-lg">
+        <div class="text-sm text-gray-600">Assignee</div>
+        <div class="text-xl font-bold text-blue-700">${monthData.assignee}</div>
+      </div>
+      <div class="bg-purple-50 p-4 rounded-lg">
+        <div class="text-sm text-gray-600">Total Inquiries (Month)</div>
+        <div class="text-xl font-bold text-purple-700">${Number(monthData.totalInquiries) || 0}</div>
+      </div>
+    </div>
+
+    <!-- Monthly -->
+    <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-xl mb-4">
+      <h4 class="text-lg font-bold mb-3 text-purple-800">📊 Monthly Performance</h4>
       <div class="grid grid-cols-2 gap-4 mb-4">
-        <div class="bg-blue-50 p-4 rounded-lg">
-          <div class="text-sm text-gray-600">Assignee</div>
-          <div class="text-xl font-bold text-blue-700">${monthData.assignee}</div>
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <div class="text-sm text-gray-600">Total Tickets</div>
+          <div class="text-2xl font-bold">${mTotal}</div>
         </div>
-        <div class="bg-purple-50 p-4 rounded-lg">
-          <div class="text-sm text-gray-600">Total Inquiries (Month)</div>
-          <div class="text-xl font-bold text-purple-700">${Number(monthData.totalInquiries) || 0}</div>
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <div class="text-sm text-gray-600">Missed Reply</div>
+          <div class="text-2xl font-bold text-blue-600">${Number(monthData.missedReply)}</div>
         </div>
-      </div>
-
-      <!-- Monthly Stats -->
-      <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-xl mb-4">
-        <h4 class="text-lg font-bold mb-3 text-purple-800">📊 Monthly Performance</h4>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div class="bg-white p-4 rounded-lg shadow-sm">
-            <div class="text-sm text-gray-600">Total Tickets</div>
-            <div class="text-2xl font-bold">${mTotal}</div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm">
-            <div class="text-sm text-gray-600">Missed Reply</div>
-            <div class="text-2xl font-bold text-blue-600">${Number(monthData.missedReply) || 0}</div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm">
-            <div class="text-sm text-gray-600">Missed Order</div>
-            <div class="text-2xl font-bold text-red-600">${Number(monthData.missedOrder) || 0}</div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm">
-            <div class="text-sm text-gray-600">Missed Update</div>
-            <div class="text-2xl font-bold text-amber-600">${Number(monthData.missedUpdate) || 0}</div>
-          </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <div class="text-sm text-gray-600">Missed Order</div>
+          <div class="text-2xl font-bold text-red-600">${Number(monthData.missedOrder)}</div>
         </div>
-        <div class="space-y-2">
-          <div><div class="flex justify-between text-xs mb-1"><span>Missed Reply</span><span class="font-bold">${mMissedReplyRate}%</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-blue-500 h-2 rounded-full" style="width:${mMissedReplyRate}%"></div></div></div>
-          <div><div class="flex justify-between text-xs mb-1"><span>Missed Order</span><span class="font-bold">${mMissedOrderRate}%</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-red-500 h-2 rounded-full" style="width:${mMissedOrderRate}%"></div></div></div>
-          <div><div class="flex justify-between text-xs mb-1"><span>Missed Update</span><span class="font-bold">${mMissedUpdateRate}%</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width:${mMissedUpdateRate}%"></div></div></div>
-          <div><div class="flex justify-between text-xs mb-1"><span>Wrong Reply</span><span class="font-bold">${mWrongReplyRate}%</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-green-500 h-2 rounded-full" style="width:${mWrongReplyRate}%"></div></div></div>
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <div class="text-sm text-gray-600">Missed Update</div>
+          <div class="text-2xl font-bold text-amber-600">${Number(monthData.missedUpdate)}</div>
         </div>
       </div>
 
-      <!-- Daily Stats -->
-      <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl">
-        <h4 class="text-lg font-bold mb-3 text-blue-800">📅 Today's Performance</h4>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div class="bg-white p-4 rounded-lg shadow-sm">
-            <div class="text-sm text-gray-600">Total Tickets</div>
-            <div class="text-2xl font-bold">${dTotal}</div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm">
-            <div class="text-sm text-gray-600">Missed Reply</div>
-            <div class="text-2xl font-bold text-blue-600">${Number(dailyData.missedReply) || 0}</div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm">
-            <div class="text-sm text-gray-600">Missed Order</div>
-            <div class="text-2xl font-bold text-red-600">${Number(dailyData.missedOrder) || 0}</div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm">
-            <div class="text-sm text-gray-600">Missed Update</div>
-            <div class="text-2xl font-bold text-amber-600">${Number(dailyData.missedUpdate) || 0}</div>
+      <div class="space-y-3">
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span>Missed Reply</span><span class="font-bold">${mMissedReplyRate}%</span></div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-blue-500 h-2 rounded-full" style="width:${mMissedReplyRate}%"></div>
           </div>
         </div>
-        <div class="space-y-2">
-          <div><div class="flex justify-between text-xs mb-1"><span>Missed Reply</span><span class="font-bold">${dMissedReplyRate}%</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-blue-500 h-2 rounded-full" style="width:${dMissedReplyRate}%"></div></div></div>
-          <div><div class="flex justify-between text-xs mb-1"><span>Missed Order</span><span class="font-bold">${dMissedOrderRate}%</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-red-500 h-2 rounded-full" style="width:${dMissedOrderRate}%"></div></div></div>
-          <div><div class="flex justify-between text-xs mb-1"><span>Missed Update</span><span class="font-bold">${dMissedUpdateRate}%</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width:${dMissedUpdateRate}%"></div></div></div>
-          <div><div class="flex justify-between text-xs mb-1"><span>Wrong Reply</span><span class="font-bold">${dWrongReplyRate}%</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-green-500 h-2 rounded-full" style="width:${dWrongReplyRate}%"></div></div></div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span>Missed Order</span><span class="font-bold">${mMissedOrderRate}%</span></div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-red-500 h-2 rounded-full" style="width:${mMissedOrderRate}%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span>Missed Update</span><span class="font-bold">${mMissedUpdateRate}%</span></div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-amber-500 h-2 rounded-full" style="width:${mMissedUpdateRate}%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span>Wrong Reply</span><span class="font-bold">${mWrongReplyRate}%</span></div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-500 h-2 rounded-full" style="width:${mWrongReplyRate}%"></div>
+          </div>
         </div>
       </div>
-    `;
+    </div>
 
-    modal.classList.remove('hidden');
+    <!-- Daily -->
+    <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl">
+      <h4 class="text-lg font-bold mb-3 text-blue-800">📅 Daily Performance</h4>
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <div class="text-sm text-gray-600">Today's Tickets</div>
+          <div class="text-2xl font-bold">${dTotal}</div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <div class="text-sm text-gray-600">Missed Reply</div>
+          <div class="text-2xl font-bold text-blue-600">${Number(dailyData.missedReply) || 0}</div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <div class="text-sm text-gray-600">Missed Order</div>
+          <div class="text-2xl font-bold text-red-600">${Number(dailyData.missedOrder) || 0}</div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <div class="text-sm text-gray-600">Missed Update</div>
+          <div class="text-2xl font-bold text-amber-600">${Number(dailyData.missedUpdate) || 0}</div>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span>Missed Reply</span><span class="font-bold">${dMissedReplyRate}%</span></div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-blue-500 h-2 rounded-full" style="width:${dMissedReplyRate}%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span>Missed Order</span><span class="font-bold">${dMissedOrderRate}%</span></div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-red-500 h-2 rounded-full" style="width:${dMissedOrderRate}%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span>Missed Update</span><span class="font-bold">${dMissedUpdateRate}%</span></div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-amber-500 h-2 rounded-full" style="width:${dMissedUpdateRate}%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span>Wrong Reply</span><span class="font-bold">${dWrongReplyRate}%</span></div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-500 h-2 rounded-full" style="width:${dWrongReplyRate}%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  modal.classList.remove("hidden");
+}
+
     modal.classList.add('flex');
   }
 
