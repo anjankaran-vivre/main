@@ -1,368 +1,384 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OPS Dashboard</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>OPS OUT TICKET DASHBOARD</title>
+
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <style>
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    :root{
+      --bg-start: #f3f6ff;
+      --bg-end: #fff3fb;
+      --card-bg: #fff;
+      --muted: #6b7280;
+      --radius: 18px;
     }
-    .glass-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+    body{
+      background: linear-gradient(135deg, #f3f6ff 0%, #fffaf6 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color: #0f172a;
+      -webkit-font-smoothing:antialiased;
     }
-    .gradient-text {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+
+    /* header image (your uploaded image path used as src) */
+    .header-img {
+      max-height: 110px;
+      object-fit: contain;
+      opacity: 0.06;
+      filter: drop-shadow(0 4px 14px rgba(0,0,0,0.06));
     }
-    .stat-card {
-      transition: all 0.3s ease;
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 30px rgba(15,23,42,0.06);
+      padding: 20px;
     }
-    .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+
+    .big-stat {
+      border-radius: 14px;
+      padding: 26px;
+      color: white;
+      box-shadow: 0 12px 30px rgba(99,102,241,0.12);
     }
-    .zone-card {
-      transition: all 0.3s ease;
-      cursor: pointer;
+
+    .round-bubble {
+      min-width:64px;
+      min-height:64px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+      color:white;
+      box-shadow:0 8px 18px rgba(0,0,0,0.08);
     }
-    .zone-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .fade-in {
-      animation: fadeIn 0.6s ease-out forwards;
-    }
+
     .status-badge {
       padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      color: white;
+    }
+
+    /* subtle progress bar */
+    .progress-track { background:#eef2f7; height:10px; border-radius:999px; overflow:hidden; }
+    .progress-fill { height:10px; border-radius:999px; }
+
+    /* responsive layout */
+    @media (min-width: 1100px){
+      .layout-grid { display:grid; grid-template-columns: 1fr 360px; gap: 28px; align-items:start; }
+    }
+
+    @media (max-width: 1099px){
+      .layout-grid { display:block; }
+      .header-flex { flex-direction:column; gap:14px; align-items:center; text-align:center; }
+      .right-card { margin-top: 18px; }
     }
   </style>
 </head>
-
-<body class="p-6">
+<body class="p-8">
   <div class="max-w-7xl mx-auto">
-    
-    <!-- HEADER SECTION -->
-    <div class="flex justify-between items-start mb-8 gap-6">
-      <div class="flex-1">
-        <h1 class="text-5xl font-extrabold text-white mb-2">OPS OUT TICKET DASHBOARD</h1>
-        <p class="text-white text-opacity-90 text-lg">Real-time Performance Overview</p>
+    <!-- TOP: Title + faint decorative image -->
+    <div class="flex items-center justify-between mb-8 header-flex">
+      <div>
+        <h1 class="text-5xl font-extrabold tracking-tight" style="background:linear-gradient(90deg,#6d28d9,#ec4899);-webkit-background-clip:text;color:transparent;">
+          OPS OUT TICKET DASHBOARD
+        </h1>
+        <div id="timestamp" class="text-sm text-gray-500 mt-2">--</div>
       </div>
 
-      <!-- Employee Status Card -->
-      <div class="glass-card w-[400px] p-6">
-        <h2 class="text-2xl font-bold gradient-text mb-4">Employee Status</h2>
-        <div class="space-y-3 max-h-[400px] overflow-y-auto" id="employeeStatusContainer">
-          <!-- Employee status will be populated here -->
+      <!-- decorative screenshot preview (local path used) -->
+      <div class="hidden md:block">
+        <img src="/mnt/data/1b03a956-a90a-474f-b0c1-bd4efd832d61.png" alt="preview" class="header-img"/>
+      </div>
+    </div>
+
+    <!-- MAIN GRID: left = dashboard, right = employee status -->
+    <div class="layout-grid">
+
+      <!-- LEFT: scores + zone cards -->
+      <div>
+        <!-- top two large stat cards (Today Score & Monthly Score) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div class="big-stat" style="background: linear-gradient(135deg,#3b82f6 0%, #6366f1 100%);">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="text-sm opacity-90">Today Score</div>
+                <div id="todayScore" class="text-4xl font-extrabold mt-3">0</div>
+                <div id="todaySub" class="text-xs text-white/80 mt-1">Daily summary</div>
+              </div>
+              <div class="text-right">
+                <!-- small legend or spark -->
+                <div class="text-xs text-white/80">Updated</div>
+                <div id="todayTime" class="text-sm font-semibold mt-1">--</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="big-stat" style="background: linear-gradient(135deg,#ec4899 0%, #f97316 100%);">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="text-sm opacity-90">Monthly Score</div>
+                <div id="monthScore" class="text-4xl font-extrabold mt-3">0</div>
+                <div id="monthSub" class="text-xs text-white/80 mt-1">Month summary</div>
+              </div>
+              <div class="text-right">
+                <div class="text-xs text-white/80">This Month</div>
+                <div id="monthTime" class="text-sm font-semibold mt-1">--</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zone cards (4 cards) -->
+        <div id="zoneCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- zone cards will be injected here -->
+        </div>
+
+        <!-- chart (optional, placed below zone cards) -->
+        <div class="card mt-8">
+          <h3 class="text-xl font-bold mb-3">Zone-wise Ticket Analysis</h3>
+          <div style="height:300px;">
+            <canvas id="zoneChart" style="width:100%;height:100%"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Employee Status -->
+      <div class="right-card card p-4">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold">Employee Status</h3>
+          <div class="text-sm text-gray-500">Live</div>
+        </div>
+
+        <div id="employeeList" class="space-y-3 max-h-[66vh] overflow-y-auto pr-2">
+          <!-- list populated by JS -->
+        </div>
+
+        <div class="mt-4 text-xs text-gray-500">
+          Status badges:
+          <div class="mt-2 flex gap-2">
+            <div class="status-badge" style="background:#10b981">🟢 Active</div>
+            <div class="status-badge" style="background:#f59e0b">🟡 Break</div>
+            <div class="status-badge" style="background:#8b5cf6">🟣 Lunch</div>
+            <div class="status-badge" style="background:#ef4444">🔴 Inactive</div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- TOP STATS CARDS -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <div class="glass-card stat-card p-6" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-        <div class="text-white text-opacity-90 text-sm font-medium mb-2">Total Inquiries</div>
-        <div id="totalInquiries" class="text-5xl font-bold text-white">0</div>
-      </div>
-      <div class="glass-card stat-card p-6" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-        <div class="text-white text-opacity-90 text-sm font-medium mb-2">Total Tickets</div>
-        <div id="totalTickets" class="text-5xl font-bold text-white">0</div>
-      </div>
-      <div class="glass-card stat-card p-6" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-        <div class="text-white text-opacity-90 text-sm font-medium mb-2">Missed Replies</div>
-        <div id="totalMissedReply" class="text-5xl font-bold text-white">0</div>
-      </div>
-      <div class="glass-card stat-card p-6" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
-        <div class="text-white text-opacity-90 text-sm font-medium mb-2">Missed Orders</div>
-        <div id="totalMissedOrder" class="text-5xl font-bold text-white">0</div>
-      </div>
-    </div>
-
-    <!-- ZONE CARDS -->
-    <h2 class="text-3xl font-bold text-white mb-4">Zone Wise Summary</h2>
-    <div id="zoneCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"></div>
-
-    <!-- CHART SECTION -->
-    <div class="glass-card p-8 mb-8">
-      <h2 class="text-2xl font-bold gradient-text mb-6">Zone-wise Ticket Analysis</h2>
-      <div class="w-full" style="height:400px;">
-        <canvas id="barChart"></canvas>
-      </div>
-    </div>
-
-    <!-- DAILY SUMMARY TABLE -->
-    <div class="glass-card overflow-hidden">
-      <div class="p-6 bg-gradient-to-r from-purple-600 to-indigo-600">
-        <h2 class="text-3xl font-bold text-white">Daily Summary</h2>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-4 text-sm font-bold text-gray-700">Zone</th>
-              <th class="px-6 py-4 text-sm font-bold text-gray-700">Assignee</th>
-              <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Total Inquiry</th>
-              <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Total Count</th>
-              <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Reply</th>
-              <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Order</th>
-              <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Update</th>
-              <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Wrong Reply</th>
-            </tr>
-          </thead>
-          <tbody id="dailyTableBody" class="bg-white"></tbody>
-        </table>
-      </div>
-    </div>
-
+    </div> <!-- layout-grid end -->
   </div>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzTIupkSmRxfyGJuDsktonVW015RkXjSRfs-Ufd5aDmSKD85bMCnfY8pWSxzU9wBHHw/exec";
+<script>
+  // ---------- CONFIG: Put your Apps Script Web App URL here ----------
+  const API_URL = "https://script.google.com/macros/s/AKfycbzTIupkSmRxfyGJuDsktonVW015RkXjSRfs-Ufd5aDmSKD85bMCnfY8pWSxzU9wBHHw/exec";
 
-    const colorMapping = [
-      { color: '#667eea', bgColor: 'bg-purple-500', gradient: 'from-purple-500 to-indigo-500' },
-      { color: '#10B981', bgColor: 'bg-green-500', gradient: 'from-green-500 to-emerald-500' },
-      { color: '#F59E0B', bgColor: 'bg-amber-500', gradient: 'from-amber-500 to-orange-500' },
-      { color: '#EF4444', bgColor: 'bg-red-500', gradient: 'from-red-500 to-pink-500' }
+  // utility to safely parse numeric values
+  function toNum(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
+
+  // merge daily & monthly arrays by index (Option A)
+  function mergeDailyMonthly(daily, monthly){
+    const maxLen = Math.max((daily||[]).length, (monthly||[]).length);
+    const out = [];
+    for(let i=0;i<maxLen;i++){
+      const d = (daily && daily[i]) ? daily[i] : { zone:`Zone ${i+1}`, totalInquiries:0, assignee:'', totalCount:0, missedReply:0, missedOrder:0, missedUpdate:0, wrongReply:0 };
+      const m = (monthly && monthly[i]) ? monthly[i] : { zone:d.zone, totalInquiries:0, assignee:'', totalCount:0, missedReply:0, missedOrder:0, missedUpdate:0, wrongReply:0 };
+      out.push({ zone: d.zone || m.zone || `Zone ${i+1}`, daily: d, monthly: m });
+    }
+    return out;
+  }
+
+  // status badge HTML
+  function statusBadgeHTML(status){
+    const s = (status||'').toString().toLowerCase();
+    if(s.includes('active')) return `<span class="status-badge" style="background:#10b981">🟢 Active</span>`;
+    if(s.includes('break')) return `<span class="status-badge" style="background:#f59e0b">🟡 Break</span>`;
+    if(s.includes('lunch')) return `<span class="status-badge" style="background:#8b5cf6">🟣 Lunch</span>`;
+    return `<span class="status-badge" style="background:#ef4444">🔴 Inactive</span>`;
+  }
+
+  // render functions
+  function renderEmployees(list){
+    const container = document.getElementById('employeeList');
+    container.innerHTML = '';
+    if(!Array.isArray(list) || list.length===0){
+      container.innerHTML = '<div class="text-sm text-gray-500">No employee status available</div>';
+      return;
+    }
+    list.forEach(row=>{
+      const name = row.employee || row.Employee || row.name || '';
+      const status = row.status || row.Status || row.current || '';
+      const el = document.createElement('div');
+      el.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-md';
+      el.innerHTML = `<div class="font-semibold text-gray-800">${escapeHtml(name)}</div><div>${statusBadgeHTML(status)}</div>`;
+      container.appendChild(el);
+    });
+  }
+
+  function renderTopScores(merged){
+    // compute today score (sum of daily totalCount) and month score (sum of monthly totalCount)
+    const todayScore = merged.reduce((s,z)=> s + toNum(z.daily.totalCount), 0);
+    const monthScore = merged.reduce((s,z)=> s + toNum(z.monthly.totalCount), 0);
+    document.getElementById('todayScore').textContent = todayScore;
+    document.getElementById('monthScore').textContent = monthScore;
+    const now = new Date();
+    document.getElementById('timestamp').textContent = now.toLocaleString();
+    document.getElementById('todayTime').textContent = now.toLocaleTimeString();
+    document.getElementById('monthTime').textContent = now.toLocaleDateString();
+  }
+
+  function renderZoneCards(merged){
+    const container = document.getElementById('zoneCards');
+    container.innerHTML = '';
+    const palette = [
+      { color:'#3b82f6', gradient:'linear-gradient(90deg,#60a5fa,#3b82f6)', bubble:'#2563eb' },
+      { color:'#10b981', gradient:'linear-gradient(90deg,#34d399,#10b981)', bubble:'#059669' },
+      { color:'#f59e0b', gradient:'linear-gradient(90deg,#fbbf24,#f59e0b)', bubble:'#d97706' },
+      { color:'#f97316', gradient:'linear-gradient(90deg,#fb923c,#f97316)', bubble:'#ea580c' }
     ];
 
-    async function loadDashboard() {
-      try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
+    merged.forEach((z, idx)=>{
+      const colors = palette[idx % palette.length];
+      const daily = z.daily || {};
+      const monthly = z.monthly || {};
+      const totalCountToday = toNum(daily.totalCount);
+      const totalCountMonth = toNum(monthly.totalCount);
+      const missedReplyPercent = totalCountToday ? ((toNum(daily.missedReply)/totalCountToday)*100).toFixed(1) : '0.0';
+      const overallMissToday = totalCountToday ? (((toNum(daily.missedReply)+toNum(daily.missedOrder)+toNum(daily.missedUpdate)+toNum(daily.wrongReply))/totalCountToday)*100).toFixed(1) : '0.0';
 
-        renderEmployeeStatus(data.loginStatus);
-        renderTopStats(data.dailyData);
-        renderZoneCards(data.dailyData, data.monthlyData);
-        renderChart(data.dailyData);
-        renderDailyTable(data.dailyData);
-      } catch (err) {
-        console.error('Error loading dashboard:', err);
-      }
-    }
-
-    function statusBadge(status) {
-      status = status.toLowerCase();
-      
-      if (status.includes("active"))
-        return `<span class="status-badge" style="background: #10b981; color: white;">🟢 Active</span>`;
-      if (status.includes("break"))
-        return `<span class="status-badge" style="background: #f59e0b; color: white;">🟡 Break</span>`;
-      if (status.includes("lunch"))
-        return `<span class="status-badge" style="background: #8b5cf6; color: white;">🟣 Lunch</span>`;
-      
-      return `<span class="status-badge" style="background: #ef4444; color: white;">🔴 Inactive</span>`;
-    }
-
-    function renderEmployeeStatus(list) {
-      const container = document.getElementById('employeeStatusContainer');
-      container.innerHTML = '';
-
-      list.forEach(row => {
-        const div = document.createElement('div');
-        div.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition';
-        div.innerHTML = `
-          <span class="font-semibold text-gray-800">${row.employee}</span>
-          ${statusBadge(row.status)}
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function renderTopStats(dailyData) {
-      const totalInquiries = dailyData.reduce((sum, z) => sum + (Number(z.totalInquiries) || 0), 0);
-      const totalTickets = dailyData.reduce((sum, z) => sum + (Number(z.totalCount) || 0), 0);
-      const totalMissedReply = dailyData.reduce((sum, z) => sum + (Number(z.missedReply) || 0), 0);
-      const totalMissedOrder = dailyData.reduce((sum, z) => sum + (Number(z.missedOrder) || 0), 0);
-
-      document.getElementById('totalInquiries').textContent = totalInquiries;
-      document.getElementById('totalTickets').textContent = totalTickets;
-      document.getElementById('totalMissedReply').textContent = totalMissedReply;
-      document.getElementById('totalMissedOrder').textContent = totalMissedOrder;
-    }
-
-    function renderZoneCards(daily, monthly) {
-      const container = document.getElementById('zoneCards');
-      container.innerHTML = '';
-
-      daily.forEach((d, i) => {
-        const m = monthly[i];
-        const colors = colorMapping[i] || colorMapping[0];
-
-        const card = document.createElement('div');
-        card.className = 'glass-card zone-card p-6 fade-in';
-        card.style.animationDelay = `${i * 0.1}s`;
-        card.style.borderTop = `4px solid ${colors.color}`;
-
-        const totalCount = Number(d.totalCount) || 0;
-        const missedReplyPercent = totalCount ? ((Number(d.missedReply) / totalCount) * 100).toFixed(1) : '0.0';
-
-        card.innerHTML = `
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-2xl font-bold text-gray-800">${d.zone}</h3>
-            <div class="w-14 h-14 rounded-full bg-gradient-to-br ${colors.gradient} flex items-center justify-center text-white text-xl font-bold shadow-lg">
-              ${totalCount}
-            </div>
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.borderTop = `6px solid ${colors.color}`;
+      card.innerHTML = `
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <div class="text-lg font-bold text-gray-800">${escapeHtml(z.zone)}</div>
+            <div class="text-sm text-gray-500 mt-1">Assignee: <span class="font-semibold text-gray-700">${escapeHtml(daily.assignee || monthly.assignee || '')}</span></div>
           </div>
-
-          <div class="mb-4">
-            <div class="text-sm text-gray-600 mb-1">Assignee</div>
-            <div class="font-semibold text-gray-800">${d.assignee}</div>
+          <div class="text-right">
+            <div class="round-bubble" style="background:${colors.bubble}; min-width:62px; min-height:62px; font-size:20px">${totalCountMonth}</div>
+            <div class="text-xs text-gray-500 mt-2">Month</div>
           </div>
+        </div>
 
-          <div class="space-y-4 mb-4">
+        <div class="grid grid-cols-1 gap-3">
+          <div class="flex items-center justify-between">
             <div>
-              <div class="text-xs font-semibold text-blue-600 mb-2">📊 DAILY</div>
-              <div class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Total Inquiry:</span>
-                  <span class="font-bold">${d.totalInquiries}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Missed Reply:</span>
-                  <span class="font-bold text-red-600">${d.missedReply}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Missed Order:</span>
-                  <span class="font-bold text-orange-600">${d.missedOrder}</span>
-                </div>
-              </div>
+              <div class="text-sm text-gray-600">Today</div>
+              <div class="text-lg font-bold">${totalCountToday}</div>
             </div>
+            <div class="text-sm text-gray-500">Inquiries: <span class="font-semibold text-gray-700">${toNum(daily.totalInquiries)}</span></div>
+          </div>
 
-            <div class="pt-3 border-t">
-              <div class="text-xs font-semibold text-green-600 mb-2">📈 MONTHLY</div>
-              <div class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Total Inquiry:</span>
-                  <span class="font-bold">${m.totalInquiries}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Missed Reply:</span>
-                  <span class="font-bold text-red-600">${m.missedReply}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Missed Order:</span>
-                  <span class="font-bold text-orange-600">${m.missedOrder}</span>
-                </div>
-              </div>
+          <div>
+            <div class="flex justify-between mb-2">
+              <div class="text-sm text-gray-600">Missed Reply</div>
+              <div class="text-sm font-semibold text-gray-700">${missedReplyPercent}%</div>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:${missedReplyPercent}%; background:${colors.color};"></div>
             </div>
           </div>
 
           <div>
-            <div class="flex justify-between mb-1 text-xs">
-              <span class="text-gray-600 font-medium">Miss Rate</span>
-              <span class="font-bold">${missedReplyPercent}%</span>
+            <div class="flex justify-between mb-2">
+              <div class="text-sm text-gray-600">Overall Missed</div>
+              <div class="text-sm font-semibold text-gray-700">${overallMissToday}%</div>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="bg-gradient-to-r ${colors.gradient} h-2 rounded-full transition-all duration-500" style="width:${missedReplyPercent}%"></div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:${overallMissToday}%; background:${colors.color};"></div>
             </div>
           </div>
-        `;
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
 
-        container.appendChild(card);
-      });
-    }
+  function renderChart(merged){
+    const ctx = document.getElementById('zoneChart').getContext('2d');
+    const labels = merged.map(m=>m.zone);
+    const missedReply = merged.map(m=> toNum(m.daily.missedReply) );
+    const missedOrder = merged.map(m=> toNum(m.daily.missedOrder) );
+    const missedUpdate = merged.map(m=> toNum(m.daily.missedUpdate) );
+    const wrongReply = merged.map(m=> toNum(m.daily.wrongReply) );
 
-    function renderChart(data) {
-      const ctx = document.getElementById('barChart').getContext('2d');
-      
-      if (window.dashboardChart) {
-        window.dashboardChart.destroy();
+    if(window._zoneChart) window._zoneChart.destroy();
+
+    window._zoneChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label:'Missed Reply', data: missedReply, backgroundColor:'#3b82f6', borderRadius:6 },
+          { label:'Missed Order', data: missedOrder, backgroundColor:'#ef4444', borderRadius:6 },
+          { label:'Missed Update', data: missedUpdate, backgroundColor:'#f59e0b', borderRadius:6 },
+          { label:'Wrong Reply', data: wrongReply, backgroundColor:'#10b981', borderRadius:6 }
+        ]
+      },
+      options: {
+        maintainAspectRatio:false,
+        plugins:{ legend:{ position:'bottom' } },
+        scales:{ x:{ stacked:false }, y:{ beginAtZero:true } }
       }
+    });
+  }
 
-      const labels = data.map(z => z.zone);
-      const missedReply = data.map(z => Number(z.missedReply) || 0);
-      const missedOrder = data.map(z => Number(z.missedOrder) || 0);
-      const missedUpdate = data.map(z => Number(z.missedUpdate) || 0);
-      const wrongReply = data.map(z => Number(z.wrongReply) || 0);
+  // escape helper
+  function escapeHtml(str){
+    if(!str && str!==0) return '';
+    return String(str)
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'","&#039;");
+  }
 
-      window.dashboardChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [
-            { label: 'Missed Reply', data: missedReply, backgroundColor: '#667eea', borderRadius: 8 },
-            { label: 'Missed Order', data: missedOrder, backgroundColor: '#f5576c', borderRadius: 8 },
-            { label: 'Missed Update', data: missedUpdate, backgroundColor: '#4facfe', borderRadius: 8 },
-            { label: 'Wrong Reply', data: wrongReply, backgroundColor: '#10b981', borderRadius: 8 }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom', labels: { font: { size: 12, weight: 'bold' }, padding: 15 } },
-            tooltip: { mode: 'index', intersect: false }
-          },
-          scales: {
-            x: { grid: { display: false } },
-            y: { beginAtZero: true, grid: { color: '#e5e7eb' } }
-          }
-        }
-      });
+  // main loader
+  async function loadAll(){
+    try{
+      const res = await fetch(API_URL, {cache: "no-store"});
+      if(!res.ok) throw new Error('Network response was not ok: ' + res.status);
+      const json = await res.json();
+
+      // expecting structure: { dailyData: [...], monthlyData: [...], loginStatus: [...] }
+      const daily = Array.isArray(json.dailyData) ? json.dailyData : (json.daily || []);
+      const monthly = Array.isArray(json.monthlyData) ? json.monthlyData : (json.month || []);
+      const logins = Array.isArray(json.loginStatus) ? json.loginStatus : (json.login || []);
+
+      const merged = mergeDailyMonthly(daily, monthly);
+
+      renderEmployees(logins);
+      renderTopScores(merged);
+      renderZoneCards(merged);
+      renderChart(merged);
+
+    }catch(err){
+      console.error('Failed to load dashboard', err);
+      // minimal visible error
+      const container = document.querySelector('.max-w-7xl');
+      const msg = document.createElement('div');
+      msg.className = 'p-4 mt-6 text-red-600';
+      msg.textContent = 'Failed to load data. Check API URL / deployment and browser console.';
+      if(!document.getElementById('dash-error')){ msg.id='dash-error'; container.appendChild(msg); }
     }
+  }
 
-    function renderDailyTable(data) {
-      const tbody = document.getElementById('dailyTableBody');
-      tbody.innerHTML = '';
-
-      data.forEach((row, idx) => {
-        const tr = document.createElement('tr');
-        tr.className = `${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-purple-50 transition`;
-        
-        const colors = colorMapping[idx] || colorMapping[0];
-        
-        tr.innerHTML = `
-          <td class="px-6 py-4">
-            <div class="flex items-center gap-3">
-              <div class="w-3 h-3 rounded-full ${colors.bgColor}"></div>
-              <span class="font-semibold text-gray-800">${row.zone}</span>
-            </div>
-          </td>
-          <td class="px-6 py-4 text-gray-700">${row.assignee}</td>
-          <td class="px-6 py-4 text-center font-semibold text-gray-800">${row.totalInquiries}</td>
-          <td class="px-6 py-4 text-center">
-            <span class="px-3 py-1 bg-gradient-to-r ${colors.gradient} text-white rounded-full font-bold text-sm">
-              ${row.totalCount}
-            </span>
-          </td>
-          <td class="px-6 py-4 text-center font-semibold text-blue-600">${row.missedReply}</td>
-          <td class="px-6 py-4 text-center font-semibold text-red-600">${row.missedOrder}</td>
-          <td class="px-6 py-4 text-center font-semibold text-amber-600">${row.missedUpdate}</td>
-          <td class="px-6 py-4 text-center font-semibold text-green-600">${row.wrongReply}</td>
-        `;
-        
-        tbody.appendChild(tr);
-      });
-    }
-
-    // Load dashboard on page load
-    loadDashboard();
-
-    // Auto-refresh every 60 seconds
-    setInterval(loadDashboard, 60000);
-  </script>
-
+  // initial load
+  loadAll();
+  // auto refresh every 60 seconds
+  setInterval(loadAll, 60000);
+</script>
 </body>
 </html>
