@@ -1,571 +1,156 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <title>OPS OUT TICKET DASHBOARD</title>
-  <style>
-    html, body { height: 100%; }
-    body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
-    .modal-scroll { max-height: 85vh; overflow-y: auto; }
-    .split-card {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 0;
-    }
-    .split-card-left {
-      padding: 1rem 1.5rem;
-      border-right: 2px solid rgba(255,255,255,0.3);
-    }
-    .split-card-right {
-      padding: 1rem 1rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Ops Dashboard</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { background: #f5f6fa; }
+        .card { transition: 0.2s; cursor: pointer; }
+        .card:hover { transform: scale(1.02); }
+        #modal { display:none; }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 min-h-screen">
 
-  <div id="app" class="p-6">
-    <!-- Loading state -->
-    <div id="loading" class="flex items-center justify-center min-h-[60vh]">
-      <div class="text-center">
-        <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-        <div class="text-xl font-semibold text-gray-700">Loading Dashboard...</div>
-        <div class="text-sm text-gray-500 mt-2">Fetching data from Google Sheets</div>
-      </div>
+<body class="p-6">
+
+    <!-- Loader -->
+    <div id="loader" class="text-center text-xl font-semibold">Loading...</div>
+
+    <!-- Cards -->
+    <div id="cardContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6"></div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg w-11/12 md:w-1/2">
+            <div class="flex justify-between items-center mb-3">
+                <h2 id="modalTitle" class="text-xl font-bold"></h2>
+                <button onclick="closeModal()" class="text-red-500 font-bold text-xl">&times;</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-5">
+                <div>Total Inquiries: <span id="mInq" class="font-bold"></span></div>
+                <div>Total Count: <span id="mCount" class="font-bold"></span></div>
+                <div>Missed Reply: <span id="mReply" class="font-bold"></span></div>
+                <div>Missed Order: <span id="mOrder" class="font-bold"></span></div>
+                <div>Missed Update: <span id="mUpdate" class="font-bold"></span></div>
+                <div>Wrong Reply: <span id="mWrong" class="font-bold"></span></div>
+            </div>
+
+            <canvas id="modalChart" height="120"></canvas>
+        </div>
     </div>
 
-    <!-- Main content -->
-    <div id="mainContent" class="hidden">
-      <!-- Header with Employee Status on Right -->
-      <div class="flex justify-between items-start mb-6 gap-6">
-        <div class="flex-1">
-          <h1 class="text-5xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">OPS OUT TICKET DASHBOARD</h1>
-          <p id="subtitle" class="text-gray-600 text-lg">23/11/2025, 16:35:46</p>
-        </div>
-
-        <!-- Employee Status (Right Side) -->
-        <div class="bg-white rounded-2xl shadow-xl p-6 w-[320px]">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold text-gray-800">Employee Status</h2>
-            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">Live</span>
-          </div>
-          <div id="employeeStatus" class="space-y-3 max-h-[400px] overflow-y-auto"></div>
-        </div>
-      </div>
-
-      <!-- Top 4 Summary Cards (Month + Today Split) -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <!-- Card 1: Tickets -->
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg overflow-hidden">
-          <div class="split-card">
-            <div class="split-card-left">
-              <div class="text-xs opacity-90 mb-1">Tickets This Month</div>
-              <div id="monthTickets" class="text-3xl font-bold">434</div>
-            </div>
-            <div class="split-card-right">
-              <div class="text-xs opacity-75 mb-1">Today</div>
-              <div id="todayTickets" class="text-2xl font-bold">10</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 2: Missed Reply -->
-        <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-lg overflow-hidden">
-          <div class="split-card">
-            <div class="split-card-left">
-              <div class="text-xs opacity-90 mb-1">Missed Reply</div>
-              <div id="monthMissedReply" class="text-3xl font-bold">234</div>
-            </div>
-            <div class="split-card-right">
-              <div class="text-xs opacity-75 mb-1">Today</div>
-              <div id="todayMissedReply" class="text-2xl font-bold">10</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 3: Missed Order -->
-        <div class="bg-gradient-to-br from-pink-500 to-pink-600 text-white rounded-xl shadow-lg overflow-hidden">
-          <div class="split-card">
-            <div class="split-card-left">
-              <div class="text-xs opacity-90 mb-1">Missed Order</div>
-              <div id="monthMissedOrder" class="text-3xl font-bold">5</div>
-            </div>
-            <div class="split-card-right">
-              <div class="text-xs opacity-75 mb-1">Today</div>
-              <div id="todayMissedOrder" class="text-2xl font-bold">0</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 4: Missed Update -->
-        <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-xl shadow-lg overflow-hidden">
-          <div class="split-card">
-            <div class="split-card-left">
-              <div class="text-xs opacity-90 mb-1">Missed Update</div>
-              <div id="monthMissedUpdate" class="text-3xl font-bold">135</div>
-            </div>
-            <div class="split-card-right">
-              <div class="text-xs opacity-75 mb-1">Today</div>
-              <div id="todayMissedUpdate" class="text-2xl font-bold">10</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Zone Cards -->
-      <div id="zoneCards" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6"></div>
-
-      <!-- Chart (Monthly Basis) -->
-      <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold text-gray-800">Zone-wise Ticket Analysis</h2>
-          <span class="text-sm font-semibold text-purple-600 bg-purple-100 px-3 py-1 rounded-full">monthly</span>
-        </div>
-        <div class="w-full" style="height:350px;">
-          <canvas id="barChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Monthly Score Table -->
-      <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-6">
-        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6">
-          <h2 class="text-2xl font-bold">Detailed Zone Performance - Monthly</h2>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-4 text-sm font-bold text-gray-700">Zone</th>
-                <th class="px-6 py-4 text-sm font-bold text-gray-700">Assignee</th>
-                <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Total Inquiries</th>
-                <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Total Ticket Count</th>
-                <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Reply</th>
-                <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Order</th>
-                <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Update</th>
-                <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Wrong Reply</th>
-              </tr>
-            </thead>
-            <tbody id="monthlyTableBody" class="bg-white"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Daily Score Table -->
-      <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-6">
-          <h2 class="text-2xl font-bold">Detailed Zone Performance - Daily</h2>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-4 text-sm font-bold text-gray-700">Zone</th>
-                <th class="px-6 py-4 text-sm font-bold text-gray-700">Assignee</th>
-                <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Total Inquiries</th>
-                <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Total Ticket Count</th>
-                <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Reply</th>
-                <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Order</th>
-                <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Update</th>
-                <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Wrong Reply</th>
-              </tr>
-            </thead>
-            <tbody id="dailyTableBody" class="bg-white"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal -->
-  <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full modal-scroll">
-      <div class="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl flex justify-between items-center">
-        <h3 id="modalTitle" class="text-2xl font-bold">Zone - Details</h3>
-        <button id="modalClose" class="rounded-full p-2 hover:bg-white hover:bg-opacity-20 transition text-2xl leading-none">✕</button>
-      </div>
-      <div class="p-6 space-y-6">
-        <div id="modalContent"></div>
-      </div>
-    </div>
-  </div>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbzTIupkSmRxfyGJuDsktonVW015RkXjSRfs-Ufd5aDmSKD85bMCnfY8pWSxzU9wBHHw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzTIupkSmRxfyGJuDsktonVW015RkXjSRfs-Ufd5aDmSKD85bMCnfY8pWSxzU9wBHHw/exec";
 
-  const colorMapping = [
-    { color: '#3B82F6', bgColor: 'bg-blue-500', bgClass: 'bg-blue-500' },
-    { color: '#10B981', bgColor: 'bg-green-500', bgClass: 'bg-green-500' },
-    { color: '#F59E0B', bgColor: 'bg-amber-500', bgClass: 'bg-orange-500' },
-    { color: '#F97316', bgColor: 'bg-orange-500', bgClass: 'bg-orange-500' }
-  ];
+let modalChart = null;
 
-  async function loadDashboard() {
-    try {
-      const res = await fetch(API_URL);
-      const data = await res.json();
-      
-      console.log("Data received:", data);
+window.onload = () => {
+    fetch(API_URL)
+        .then(r => r.json())
+        .then(data => {
+            loadDashboard(data);
+            document.getElementById("loader").style.display = "none";
+        })
+        .catch(err => {
+            console.error("API Error:", err);
+            document.getElementById("loader").innerText = "Failed to load data";
+        });
+};
 
-      renderEmployeeStatus(data.loginStatus);
-      renderTopSummary(data.monthlyData, data.dailyData);
-      renderZoneCards(data.monthlyData, data.dailyData);
-      renderChart(data.monthlyData);
-      renderMonthlyTable(data.monthlyData);
-      renderDailyTable(data.dailyData);
+function loadDashboard(data) {
+    const monthly = data.monthlyData || [];
+    const daily = data.dailyData || [];
 
-      document.getElementById('loading').classList.add('hidden');
-      document.getElementById('mainContent').classList.remove('hidden');
+    const safe = v => Number(v || 0);
 
-      const now = new Date();
-      document.getElementById('subtitle').textContent = now.toLocaleString('en-GB', { 
-        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' 
-      });
-    } catch (err) {
-      console.error('Error loading dashboard:', err);
-      document.getElementById('loading').innerHTML = '<div class="text-center text-red-600">Failed to load data. Please check console.</div>';
-    }
-  }
+    // Map daily by assignee
+    const dailyMap = {};
+    daily.forEach(d => dailyMap[d.assignee] = d);
 
-  function statusBadge(status) {
-    status = status.toLowerCase();
-    if (status.includes("active")) return `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-500 text-white">● Active</span>`;
-    if (status.includes("break")) return `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500 text-white">● Break</span>`;
-    if (status.includes("lunch")) return `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500 text-white">● Lunch</span>`;
-    return `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-400 text-white">● Inactive</span>`;
-  }
+    monthly.forEach(m => {
+        const d = dailyMap[m.assignee] || {
+            totalCount: 0,
+            missedReply: 0,
+            missedOrder: 0,
+            missedUpdate: 0,
+            wrongReply: 0
+        };
 
-  function renderEmployeeStatus(list) {
-    const container = document.getElementById('employeeStatus');
-    container.innerHTML = '';
-    list.forEach(emp => {
-      const div = document.createElement('div');
-      div.className = 'flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg transition';
-      div.innerHTML = `
-        <span class="font-semibold text-gray-800 text-sm">${emp.employee}</span>
-        ${statusBadge(emp.status)}
-      `;
-      container.appendChild(div);
+        createCard({
+            zone: m.zone,
+            assignee: m.assignee,
+            totalInquiries: safe(m.totalInquiries),
+            totalCount: safe(d.totalCount),
+            missedReply: safe(d.missedReply),
+            missedOrder: safe(d.missedOrder),
+            missedUpdate: safe(d.missedUpdate),
+            wrongReply: safe(d.wrongReply)
+        });
     });
-  }
-
-  function renderTopSummary(monthly, daily) {
-    const monthTickets = monthly.reduce((s, z) => s + Number(z.totalCount || 0), 0);
-    const monthMissedReply = monthly.reduce((s, z) => s + Number(z.missedReply || 0), 0);
-    const monthMissedOrder = monthly.reduce((s, z) => s + Number(z.missedOrder || 0), 0);
-    const monthMissedUpdate = monthly.reduce((s, z) => s + Number(z.missedUpdate || 0), 0);
-
-    const todayTickets = daily.reduce((s, z) => s + Number(z.totalCount || 0), 0);
-    const todayMissedReply = daily.reduce((s, z) => s + Number(z.missedReply || 0), 0);
-    const todayMissedOrder = daily.reduce((s, z) => s + Number(z.missedOrder || 0), 0);
-    const todayMissedUpdate = daily.reduce((s, z) => s + Number(z.missedUpdate || 0), 0);
-
-    document.getElementById('monthTickets').textContent = monthTickets;
-    document.getElementById('todayTickets').textContent = todayTickets;
-    document.getElementById('monthMissedReply').textContent = monthMissedReply;
-    document.getElementById('todayMissedReply').textContent = todayMissedReply;
-    document.getElementById('monthMissedOrder').textContent = monthMissedOrder;
-    document.getElementById('todayMissedOrder').textContent = todayMissedOrder;
-    document.getElementById('monthMissedUpdate').textContent = monthMissedUpdate;
-    document.getElementById('todayMissedUpdate').textContent = todayMissedUpdate;
-  }
-
-  function renderZoneCards(monthly, daily) {
-    const container = document.getElementById('zoneCards');
-    container.innerHTML = '';
-
-    monthly.forEach((m, i) => {
-      const d = daily[i] || {};
-      const colors = colorMapping[i] || colorMapping[0];
-      
-      const monthTotal = Number(m.totalCount) || 0;
-      const missedReplyPercent = monthTotal ? ((Number(m.missedReply) / monthTotal) * 100).toFixed(1) : '0.0';
-      const missedOrderPercent = monthTotal ? ((Number(m.missedOrder) / monthTotal) * 100).toFixed(1) : '0.0';
-
-      const card = document.createElement('div');
-      card.className = 'bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition hover:scale-105 hover:shadow-2xl';
-      card.style.borderTop = `4px solid ${colors.color}`;
-      
-      card.innerHTML = `
-        <div class="p-5">
-          <div class="flex justify-between items-center mb-3">
-            <h3 class="text-xl font-bold text-gray-800">${m.zone}</h3>
-            <div class="w-12 h-12 rounded-full ${colors.bgColor} text-white flex items-center justify-center text-xl font-bold">${monthTotal}</div>
-          </div>
-          
-          <div class="mb-3 text-sm">
-            <div class="flex justify-between mb-1">
-              <span class="text-gray-600">Total Inquiries:</span>
-              <span class="font-bold">${Number(m.totalInquiries) || 0}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">Assignee:</span>
-              <span class="font-semibold text-xs">${m.assignee}</span>
-            </div>
-          </div>
-
-          <div class="space-y-2 mb-3">
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-gray-600">Missed Reply</span>
-                <span class="font-bold">${missedReplyPercent}%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div class="${colors.bgColor} h-2 rounded-full" style="width:${missedReplyPercent}%"></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-gray-600">Missed Order</span>
-                <span class="font-bold">${missedOrderPercent}%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div class="bg-red-500 h-2 rounded-full" style="width:${missedOrderPercent}%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      card.addEventListener('click', () => openModal(m, d));
-      container.appendChild(card);
-    });
-  }
-
-  function renderChart(monthly) {
-    const ctx = document.getElementById('barChart').getContext('2d');
-    if (window._dashboardChart) window._dashboardChart.destroy();
-
-    const labels = monthly.map(z => z.zone);
-    const missedReply = monthly.map(z => Number(z.missedReply) || 0);
-    const missedOrder = monthly.map(z => Number(z.missedOrder) || 0);
-    const missedUpdate = monthly.map(z => Number(z.missedUpdate) || 0);
-    const wrongReply = monthly.map(z => Number(z.wrongReply) || 0);
-
-    window._dashboardChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [
-          { label: 'Missed Reply', data: missedReply, backgroundColor: '#3B82F6', borderRadius: 6 },
-          { label: 'Missed Order', data: missedOrder, backgroundColor: '#EF4444', borderRadius: 6 },
-          { label: 'Missed Update', data: missedUpdate, backgroundColor: '#F59E0B', borderRadius: 6 },
-          { label: 'Wrong Reply', data: wrongReply, backgroundColor: '#10B981', borderRadius: 6 }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'bottom' },
-          tooltip: { mode: 'index', intersect: false }
-        },
-        scales: {
-          x: { grid: { display: false } },
-          y: { beginAtZero: true, grid: { color: '#e5e7eb' } }
-        }
-      }
-    });
-  }
-
-  function renderMonthlyTable(monthly) {
-    const tbody = document.getElementById('monthlyTableBody');
-    tbody.innerHTML = '';
-    monthly.forEach((z, idx) => {
-      const colors = colorMapping[idx] || colorMapping[0];
-      const tr = document.createElement('tr');
-      tr.className = `${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-purple-50 transition cursor-pointer`;
-      tr.innerHTML = `
-        <td class="px-6 py-4"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full ${colors.bgColor}"></div><span class="font-semibold">${z.zone}</span></div></td>
-        <td class="px-6 py-4">${z.assignee}</td>
-        <td class="px-6 py-4 text-center font-semibold">${Number(z.totalInquiries) || 0}</td>
-        <td class="px-6 py-4 text-center"><span class="${colors.bgColor} text-white px-3 py-1 rounded-full font-bold">${Number(z.totalCount) || 0}</span></td>
-        <td class="px-6 py-4 text-center text-blue-600 font-semibold">${Number(z.missedReply) || 0}</td>
-        <td class="px-6 py-4 text-center text-red-600 font-semibold">${Number(z.missedOrder) || 0}</td>
-        <td class="px-6 py-4 text-center text-amber-600 font-semibold">${Number(z.missedUpdate) || 0}</td>
-        <td class="px-6 py-4 text-center text-green-600 font-semibold">${Number(z.wrongReply) || 0}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  function renderDailyTable(daily) {
-    const tbody = document.getElementById('dailyTableBody');
-    tbody.innerHTML = '';
-    daily.forEach((z, idx) => {
-      const colors = colorMapping[idx] || colorMapping[0];
-      const tr = document.createElement('tr');
-      tr.className = `${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition cursor-pointer`;
-      tr.innerHTML = `
-        <td class="px-6 py-4"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full ${colors.bgColor}"></div><span class="font-semibold">${z.zone}</span></div></td>
-        <td class="px-6 py-4">${z.assignee}</td>
-        <td class="px-6 py-4 text-center font-semibold">${Number(z.totalInquiries) || 0}</td>
-        <td class="px-6 py-4 text-center"><span class="${colors.bgColor} text-white px-3 py-1 rounded-full font-bold">${Number(z.totalCount) || 0}</span></td>
-        <td class="px-6 py-4 text-center text-blue-600 font-semibold">${Number(z.missedReply) || 0}</td>
-        <td class="px-6 py-4 text-center text-red-600 font-semibold">${Number(z.missedOrder) || 0}</td>
-        <td class="px-6 py-4 text-center text-amber-600 font-semibold">${Number(z.missedUpdate) || 0}</td>
-        <td class="px-6 py-4 text-center text-green-600 font-semibold">${Number(z.wrongReply) || 0}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  function openModal(monthData, dailyData) {
-  const modal = document.getElementById('detailModal');
-  const title = document.getElementById('modalTitle');
-  const content = document.getElementById('modalContent');
-
-  title.textContent = `${monthData.zone} - Detailed Report`;
-
-  const mTotal = Number(monthData.totalCount) || 0;
-  const mMissedReplyRate = mTotal ? ((Number(monthData.missedReply) / mTotal) * 100).toFixed(1) : '0.0';
-  const mMissedOrderRate = mTotal ? ((Number(monthData.missedOrder) / mTotal) * 100).toFixed(1) : '0.0';
-  const mMissedUpdateRate = mTotal ? ((Number(monthData.missedUpdate) / mTotal) * 100).toFixed(1) : '0.0';
-  const mWrongReplyRate = mTotal ? ((Number(monthData.wrongReply) / mTotal) * 100).toFixed(1) : '0.0';
-
-  const dTotal = Number(dailyData.totalCount) || 0;
-  const dMissedReplyRate = dTotal ? ((Number(dailyData.missedReply) / dTotal) * 100).toFixed(1) : '0.0';
-  const dMissedOrderRate = dTotal ? ((Number(dailyData.missedOrder) / dTotal) * 100).toFixed(1) : '0.0';
-  const dMissedUpdateRate = dTotal ? ((Number(dailyData.missedUpdate) / dTotal) * 100).toFixed(1) : '0.0';
-  const dWrongReplyRate = dTotal ? ((Number(dailyData.wrongReply) / dTotal) * 100).toFixed(1) : '0.0';
-
-  content.innerHTML = `
-    <!-- Top Info -->
-    <div class="grid grid-cols-2 gap-4 mb-4">
-      <div class="bg-blue-50 p-4 rounded-lg">
-        <div class="text-sm text-gray-600">Assignee</div>
-        <div class="text-xl font-bold text-blue-700">${monthData.assignee}</div>
-      </div>
-      <div class="bg-purple-50 p-4 rounded-lg">
-        <div class="text-sm text-gray-600">Total Inquiries (Month)</div>
-        <div class="text-xl font-bold text-purple-700">${Number(monthData.totalInquiries) || 0}</div>
-      </div>
-    </div>
-
-    <!-- Monthly -->
-    <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-xl mb-4">
-      <h4 class="text-lg font-bold mb-3 text-purple-800">📊 Monthly Performance</h4>
-      <div class="grid grid-cols-2 gap-4 mb-4">
-        <div class="bg-white p-4 rounded-lg shadow-sm">
-          <div class="text-sm text-gray-600">Total Tickets</div>
-          <div class="text-2xl font-bold">${mTotal}</div>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm">
-          <div class="text-sm text-gray-600">Missed Reply</div>
-          <div class="text-2xl font-bold text-blue-600">${Number(monthData.missedReply)}</div>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm">
-          <div class="text-sm text-gray-600">Missed Order</div>
-          <div class="text-2xl font-bold text-red-600">${Number(monthData.missedOrder)}</div>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm">
-          <div class="text-sm text-gray-600">Missed Update</div>
-          <div class="text-2xl font-bold text-amber-600">${Number(monthData.missedUpdate)}</div>
-        </div>
-      </div>
-
-      <div class="space-y-3">
-        <div>
-          <div class="flex justify-between text-xs mb-1"><span>Missed Reply</span><span class="font-bold">${mMissedReplyRate}%</span></div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="bg-blue-500 h-2 rounded-full" style="width:${mMissedReplyRate}%"></div>
-          </div>
-        </div>
-        <div>
-          <div class="flex justify-between text-xs mb-1"><span>Missed Order</span><span class="font-bold">${mMissedOrderRate}%</span></div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="bg-red-500 h-2 rounded-full" style="width:${mMissedOrderRate}%"></div>
-          </div>
-        </div>
-        <div>
-          <div class="flex justify-between text-xs mb-1"><span>Missed Update</span><span class="font-bold">${mMissedUpdateRate}%</span></div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="bg-amber-500 h-2 rounded-full" style="width:${mMissedUpdateRate}%"></div>
-          </div>
-        </div>
-        <div>
-          <div class="flex justify-between text-xs mb-1"><span>Wrong Reply</span><span class="font-bold">${mWrongReplyRate}%</span></div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="bg-green-500 h-2 rounded-full" style="width:${mWrongReplyRate}%"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Daily -->
-    <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl">
-      <h4 class="text-lg font-bold mb-3 text-blue-800">📅 Daily Performance</h4>
-      <div class="grid grid-cols-2 gap-4 mb-4">
-        <div class="bg-white p-4 rounded-lg shadow-sm">
-          <div class="text-sm text-gray-600">Today's Tickets</div>
-          <div class="text-2xl font-bold">${dTotal}</div>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm">
-          <div class="text-sm text-gray-600">Missed Reply</div>
-          <div class="text-2xl font-bold text-blue-600">${Number(dailyData.missedReply) || 0}</div>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm">
-          <div class="text-sm text-gray-600">Missed Order</div>
-          <div class="text-2xl font-bold text-red-600">${Number(dailyData.missedOrder) || 0}</div>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm">
-          <div class="text-sm text-gray-600">Missed Update</div>
-          <div class="text-2xl font-bold text-amber-600">${Number(dailyData.missedUpdate) || 0}</div>
-        </div>
-      </div>
-
-      <div class="space-y-3">
-        <div>
-          <div class="flex justify-between text-xs mb-1"><span>Missed Reply</span><span class="font-bold">${dMissedReplyRate}%</span></div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="bg-blue-500 h-2 rounded-full" style="width:${dMissedReplyRate}%"></div>
-          </div>
-        </div>
-        <div>
-          <div class="flex justify-between text-xs mb-1"><span>Missed Order</span><span class="font-bold">${dMissedOrderRate}%</span></div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="bg-red-500 h-2 rounded-full" style="width:${dMissedOrderRate}%"></div>
-          </div>
-        </div>
-        <div>
-          <div class="flex justify-between text-xs mb-1"><span>Missed Update</span><span class="font-bold">${dMissedUpdateRate}%</span></div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="bg-amber-500 h-2 rounded-full" style="width:${dMissedUpdateRate}%"></div>
-          </div>
-        </div>
-        <div>
-          <div class="flex justify-between text-xs mb-1"><span>Wrong Reply</span><span class="font-bold">${dWrongReplyRate}%</span></div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="bg-green-500 h-2 rounded-full" style="width:${dWrongReplyRate}%"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  modal.classList.remove("hidden");
 }
 
-    modal.classList.add('flex');
-  }
+function createCard(obj) {
+    const card = document.createElement("div");
+    card.className = "card p-4 bg-white shadow rounded-lg";
+    card.onclick = () => openModal(obj);
 
-  function closeModal() {
-    document.getElementById('detailModal').classList.add('hidden');
-    document.getElementById('detailModal').classList.remove('flex');
-  }
+    card.innerHTML = `
+        <h3 class="text-lg font-bold">${obj.zone}</h3>
+        <p class="text-sm text-gray-600">${obj.assignee}</p>
+        <div class="mt-3">
+            <div>Total Inquiries: <b>${obj.totalInquiries}</b></div>
+            <div>Total Count: <b>${obj.totalCount}</b></div>
+        </div>
+    `;
 
-  document.getElementById('modalClose').addEventListener('click', closeModal);
-  document.getElementById('detailModal').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('detailModal')) closeModal();
-  });
+    document.getElementById("cardContainer").appendChild(card);
+}
 
-  // Initial load
-  loadDashboard();
+function openModal(d) {
+    document.getElementById("modalTitle").innerText = d.zone + " — " + d.assignee;
+    document.getElementById("mInq").innerText = d.totalInquiries;
+    document.getElementById("mCount").innerText = d.totalCount;
+    document.getElementById("mReply").innerText = d.missedReply;
+    document.getElementById("mOrder").innerText = d.missedOrder;
+    document.getElementById("mUpdate").innerText = d.missedUpdate;
+    document.getElementById("mWrong").innerText = d.wrongReply;
 
-  // Auto-refresh every 60 seconds
-  setInterval(loadDashboard, 60000)
+    if (modalChart) modalChart.destroy();
+
+    modalChart = new Chart(document.getElementById("modalChart"), {
+        type: "bar",
+        data: {
+            labels: ["Missed Reply", "Missed Order", "Missed Update", "Wrong Reply"],
+            datasets: [{
+                label: "Count",
+                data: [
+                    d.missedReply,
+                    d.missedOrder,
+                    d.missedUpdate,
+                    d.wrongReply
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
+}
+</script>
+
+</body>
+</html>
