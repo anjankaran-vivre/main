@@ -18,11 +18,11 @@
     .modal-scroll { max-height: 85vh; overflow-y: auto; }
     .legend-swatch { width: 12px; height: 12px; display:inline-block; margin-right:8px; vertical-align:middle; border-radius: 2px; }
     .status-dot {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       display: inline-block;
-      margin-right: 8px;
+      margin-left: 8px;
     }
     .status-active {
       background-color: #10B981;
@@ -166,10 +166,10 @@
         <div class="lg:col-span-3">
           <div class="bg-white rounded-2xl shadow-xl overflow-hidden sticky top-8">
             <div class="bg-gradient-to-r from-green-600 to-teal-600 text-white p-6">
-              <h2 class="text-2xl font-bold">Employee Status</h2>
+              <h2 class="text-2xl font-bold">OPS Login Status</h2>
               <p class="text-sm opacity-90 mt-1">Real-time availability</p>
             </div>
-            <div id="employeeStatusContainer" class="p-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+            <div id="employeeStatusContainer" class="p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
               <!-- Employee status will be populated here -->
             </div>
           </div>
@@ -223,34 +223,39 @@
       employeeMap[name] = status;
     });
 
-    let html = '<div class="space-y-3">';
+    let html = '<div class="space-y-2">';
     
     Object.entries(employeeMap).forEach(([name, status]) => {
       const statusLower = status.toLowerCase();
       let statusClass = 'status-inactive';
       let bgColor = 'bg-red-50';
       let textColor = 'text-red-700';
+      let borderColor = 'border-red-500';
       
       if (statusLower === 'active') {
         statusClass = 'status-active';
         bgColor = 'bg-green-50';
         textColor = 'text-green-700';
-      } else if (statusLower === 'break') {
+        borderColor = 'border-green-500';
+      } else if (statusLower === 'break'||statusLower === 'lunch break') {
         statusClass = 'status-break';
         bgColor = 'bg-amber-50';
         textColor = 'text-amber-700';
+        borderColor = 'border-amber-500';
       }
 
       html += `
-        <div class="${bgColor} rounded-lg p-4 border-l-4 ${statusLower === 'active' ? 'border-green-500' : statusLower === 'break' ? 'border-amber-500' : 'border-red-500'} transition-all hover:shadow-md">
+        <div class="${bgColor} rounded-lg p-3 border-l-4 ${borderColor} transition-all hover:shadow-md">
           <div class="flex items-center justify-between">
-            <div class="flex items-center flex-1">
-              <span class="status-dot ${statusClass}"></span>
-              <span class="font-semibold text-gray-800">${escapeHtml(name)}</span>
+            <div class="flex-1 min-w-0">
+              <span class="font-semibold text-gray-800 text-sm block truncate">${escapeHtml(name)}</span>
             </div>
-            <span class="${textColor} text-sm font-bold px-3 py-1 rounded-full ${bgColor}">
-              ${escapeHtml(status)}
-            </span>
+            <div class="flex items-center ml-2">
+              <span class="${textColor} text-xs font-bold">
+                ${escapeHtml(status)}
+              </span>
+              <span class="status-dot ${statusClass}"></span>
+            </div>
           </div>
         </div>
       `;
