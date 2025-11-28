@@ -9,6 +9,8 @@
 
   <!-- Chart.js UMD -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Chart.js Data Labels Plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
   <title>OPS OUT TICKET DASHBOARD</title>
 
@@ -62,64 +64,94 @@
         <!-- Left Section - Main Dashboard (9 columns) -->
         <div class="lg:col-span-9 space-y-6">
           
-          <!-- Summary tiles -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Total Tickets -->
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
-              <div class="text-sm opacity-90 mb-3">Total Tickets</div>
+          <!-- Summary tiles - All 6 cards in ONE row -->
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <!-- Total Tickets - Teal -->
+            <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-4 rounded-xl shadow-lg">
+              <div class="text-xs opacity-90 mb-2">Total Tickets</div>
               <div class="flex justify-between items-end">
                 <div>
-                  <div class="text-xs opacity-75">Today</div>
-                  <div id="totalTicketsToday" class="text-3xl font-bold">0</div>
+                  <div class="text-[10px] opacity-75">Today</div>
+                  <div id="totalTicketsToday" class="text-xl font-bold">0</div>
                 </div>
                 <div>
-                  <div class="text-xs opacity-75">Monthly</div>
-                  <div id="totalTicketsMonthly" class="text-3xl font-bold">0</div>
+                  <div class="text-[10px] opacity-75">Monthly</div>
+                  <div id="totalTicketsMonthly" class="text-xl font-bold">0</div>
                 </div>
               </div>
             </div>
 
-            <!-- Missed Replies -->
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg">
-              <div class="text-sm opacity-90 mb-3">Missed Replies</div>
+            <!-- Missed Replies - Blue -->
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-xl shadow-lg">
+              <div class="text-xs opacity-90 mb-2">Missed Replies</div>
               <div class="flex justify-between items-end">
                 <div>
-                  <div class="text-xs opacity-75">Today</div>
-                  <div id="totalMissedReplyToday" class="text-3xl font-bold">0</div>
+                  <div class="text-[10px] opacity-75">Today</div>
+                  <div id="totalMissedReplyToday" class="text-xl font-bold">0</div>
                 </div>
                 <div>
-                  <div class="text-xs opacity-75">Monthly</div>
-                  <div id="totalMissedReplyMonthly" class="text-3xl font-bold">0</div>
+                  <div class="text-[10px] opacity-75">Monthly</div>
+                  <div id="totalMissedReplyMonthly" class="text-xl font-bold">0</div>
                 </div>
               </div>
             </div>
 
-            <!-- Missed Orders -->
-            <div class="bg-gradient-to-br from-pink-500 to-pink-600 text-white p-6 rounded-xl shadow-lg">
-              <div class="text-sm opacity-90 mb-3">Missed Orders</div>
+            <!-- Missed Orders - Red -->
+            <div class="bg-gradient-to-br from-red-500 to-red-600 text-white p-4 rounded-xl shadow-lg">
+              <div class="text-xs opacity-90 mb-2">Missed Orders</div>
               <div class="flex justify-between items-end">
                 <div>
-                  <div class="text-xs opacity-75">Today</div>
-                  <div id="totalMissedOrderToday" class="text-3xl font-bold">0</div>
+                  <div class="text-[10px] opacity-75">Today</div>
+                  <div id="totalMissedOrderToday" class="text-xl font-bold">0</div>
                 </div>
                 <div>
-                  <div class="text-xs opacity-75">Monthly</div>
-                  <div id="totalMissedOrderMonthly" class="text-3xl font-bold">0</div>
+                  <div class="text-[10px] opacity-75">Monthly</div>
+                  <div id="totalMissedOrderMonthly" class="text-xl font-bold">0</div>
                 </div>
               </div>
             </div>
 
-            <!-- Missed Updates -->
-            <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-6 rounded-xl shadow-lg">
-              <div class="text-sm opacity-90 mb-3">Missed Updates</div>
+            <!-- Missed Updates - Amber -->
+            <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-4 rounded-xl shadow-lg">
+              <div class="text-xs opacity-90 mb-2">Missed Updates</div>
               <div class="flex justify-between items-end">
                 <div>
-                  <div class="text-xs opacity-75">Today</div>
-                  <div id="totalMissedUpdateToday" class="text-3xl font-bold">0</div>
+                  <div class="text-[10px] opacity-75">Today</div>
+                  <div id="totalMissedUpdateToday" class="text-xl font-bold">0</div>
                 </div>
                 <div>
-                  <div class="text-xs opacity-75">Monthly</div>
-                  <div id="totalMissedUpdateMonthly" class="text-3xl font-bold">0</div>
+                  <div class="text-[10px] opacity-75">Monthly</div>
+                  <div id="totalMissedUpdateMonthly" class="text-xl font-bold">0</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Wrong Punch - Pink -->
+            <div class="bg-gradient-to-br from-pink-500 to-pink-600 text-white p-4 rounded-xl shadow-lg">
+              <div class="text-xs opacity-90 mb-2">Wrong Punch</div>
+              <div class="flex justify-between items-end">
+                <div>
+                  <div class="text-[10px] opacity-75">Today</div>
+                  <div id="totalWrongPunchToday" class="text-xl font-bold">0</div>
+                </div>
+                <div>
+                  <div class="text-[10px] opacity-75">Monthly</div>
+                  <div id="totalWrongPunchMonthly" class="text-xl font-bold">0</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Incorrect Stage - Indigo -->
+            <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-4 rounded-xl shadow-lg">
+              <div class="text-xs opacity-90 mb-2">Incorrect Stage</div>
+              <div class="flex justify-between items-end">
+                <div>
+                  <div class="text-[10px] opacity-75">Today</div>
+                  <div id="totalIncorrectStageToday" class="text-xl font-bold">0</div>
+                </div>
+                <div>
+                  <div class="text-[10px] opacity-75">Monthly</div>
+                  <div id="totalIncorrectStageMonthly" class="text-xl font-bold">0</div>
                 </div>
               </div>
             </div>
@@ -128,7 +160,7 @@
           <!-- Zone cards -->
           <div id="zoneCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
 
-          <!-- Chart -->
+          <!-- Zone Chart -->
           <div class="bg-white rounded-2xl shadow-xl p-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">Zone-wise Ticket Analysis</h2>
             <div class="w-full" style="height:420px;">
@@ -136,10 +168,18 @@
             </div>
           </div>
 
-          <!-- Data table -->
+          <!-- Employee Performance Chart - STACKED VERTICAL COLUMN -->
+          <div class="bg-white rounded-2xl shadow-xl p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Employee-wise Errors (Wrong Punch & Incorrect Stage)</h2>
+            <div class="w-full" style="height:420px;">
+              <canvas id="employeeChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Monthly table -->
           <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
-              <h2 class="text-2xl font-bold">Detailed Zone Performance</h2>
+              <h2 class="text-2xl font-bold">Monthly Zone Performance</h2>
             </div>
             <div class="overflow-x-auto">
               <table id="detailTable" class="w-full text-left">
@@ -149,17 +189,45 @@
                     <th class="px-6 py-4 text-sm font-bold text-gray-700">Assignee</th>
                     <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Total Inquiries</th>
                     <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Monthly Tickets</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Today Tickets</th>
                     <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Reply</th>
                     <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Order</th>
                     <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Update</th>
                     <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Wrong Reply</th>
+                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Wrong Order Punch</th>
+                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Incorrect Stage</th>
                   </tr>
                 </thead>
                 <tbody id="tableBody" class="bg-white"></tbody>
               </table>
             </div>
           </div>
+
+          <!-- Daily table -->
+          <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="bg-gradient-to-r from-green-600 to-teal-600 text-white p-6">
+              <h2 class="text-2xl font-bold">Daily Zone Performance</h2>
+            </div>
+            <div class="overflow-x-auto">
+              <table id="dailyDetailTable" class="w-full text-left">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-4 text-sm font-bold text-gray-700">Zone</th>
+                    <th class="px-6 py-4 text-sm font-bold text-gray-700">Assignee</th>
+                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Total Inquiries</th>
+                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Total Tickets</th>
+                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Reply</th>
+                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Order</th>
+                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Update</th>
+                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Wrong Reply</th>
+                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Wrong Order Punch</th>
+                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Incorrect Stage</th>
+                  </tr>
+                </thead>
+                <tbody id="dailyTableBody" class="bg-white"></tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
 
         <!-- Right Section - Employee Status (3 columns) -->
@@ -180,31 +248,34 @@
 
   <!-- Modal -->
   <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full modal-scroll">
-      <div class="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl flex justify-between items-center">
-        <h3 id="modalTitle" class="text-2xl font-bold">Zone - Details</h3>
-        <button id="modalClose" class="rounded-full p-2 hover:bg-white hover:bg-opacity-20 transition">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full modal-scroll">
+      <div class="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-t-2xl flex justify-between items-center">
+        <h3 id="modalTitle" class="text-xl font-bold">Zone - Details</h3>
+        <button id="modalClose" class="rounded-full p-1 hover:bg-white hover:bg-opacity-20 transition text-lg">
           ✕
         </button>
       </div>
-      <div class="p-6 space-y-6">
+      <div class="p-4">
         <div id="modalContent"></div>
       </div>
     </div>
   </div>
 
 <script>
+  // Register the datalabels plugin
+  Chart.register(ChartDataLabels);
+
   // Google Apps Script Web App URL
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNjp4HJ6gQ_hIBkhFalPxCQ-mTKZpI3uYxaba0Otqa3teKPQS1CNUGPeI8EODz78Qn/exec';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxYp45otGDikNJWI-23yp9LDM6l6hFkBg7baio70LVA4CUoGRx53lb0Jbaa5E4WqD57/exec';
   
   let allData = null;
 
   // Color mapping (same order as zones)
   const colorMapping = [
-    { color: '#3B82F6', bgColor: 'bg-blue-500' },   // blue
-    { color: '#10B981', bgColor: 'bg-green-500' },  // green
-    { color: '#F59E0B', bgColor: 'bg-amber-500' },  // amber
-    { color: '#F97316', bgColor: 'bg-orange-500' }  // orange
+    { color: '#3B82F6', bgColor: 'bg-blue-500' },
+    { color: '#10B981', bgColor: 'bg-green-500' },
+    { color: '#F59E0B', bgColor: 'bg-amber-500' },
+    { color: '#F97316', bgColor: 'bg-orange-500' }
   ];
 
   function renderEmployeeStatus(loginStatus) {
@@ -215,7 +286,6 @@
       return;
     }
 
-    // Group by employee and get latest status
     const employeeMap = {};
     loginStatus.forEach(item => {
       const name = item.employee || 'Unknown';
@@ -232,12 +302,12 @@
       let textColor = 'text-red-700';
       let borderColor = 'border-red-500';
       
-      if (statusLower === 'active'|| statusLower === 'in') {
+      if (statusLower === 'active') {
         statusClass = 'status-active';
         bgColor = 'bg-green-50';
         textColor = 'text-green-700';
         borderColor = 'border-green-500';
-      } else if (statusLower === 'break'||statusLower === 'lunch break') {
+      } else if (statusLower === 'break' || statusLower === 'lunch break') {
         statusClass = 'status-break';
         bgColor = 'bg-amber-50';
         textColor = 'text-amber-700';
@@ -265,9 +335,9 @@
     container.innerHTML = html;
   }
 
-  function renderDashboard(monthlyData, dailyData) {
+  function renderDashboard(monthlyData, dailyData, employeeWiseData = []) {
     try {
-      console.log("Rendering dashboard with data:", { monthlyData, dailyData });
+      console.log("Rendering dashboard with data:", { monthlyData, dailyData, employeeWiseData });
       
       if (!monthlyData || monthlyData.length === 0) {
         document.getElementById('loading').innerHTML = '<div class="text-center text-gray-600">No data available.</div>';
@@ -293,25 +363,33 @@
       const totalMissedReplyMonthly = monthlyEnriched.reduce((s, z) => s + (Number(z.missedReply) || 0), 0);
       const totalMissedOrderMonthly = monthlyEnriched.reduce((s, z) => s + (Number(z.missedOrder) || 0), 0);
       const totalMissedUpdateMonthly = monthlyEnriched.reduce((s, z) => s + (Number(z.missedUpdate) || 0), 0);
+      const totalWrongPunchMonthly = monthlyEnriched.reduce((s, z) => s + (Number(z.wrongPunch) || 0), 0);
+      const totalIncorrectStageMonthly = monthlyEnriched.reduce((s, z) => s + (Number(z.incorrectStage) || 0), 0);
 
       // Calculate summary metrics for daily
       const totalTicketsToday = dailyEnriched.reduce((s, z) => s + (Number(z.totalCount) || 0), 0);
       const totalMissedReplyToday = dailyEnriched.reduce((s, z) => s + (Number(z.missedReply) || 0), 0);
       const totalMissedOrderToday = dailyEnriched.reduce((s, z) => s + (Number(z.missedOrder) || 0), 0);
       const totalMissedUpdateToday = dailyEnriched.reduce((s, z) => s + (Number(z.missedUpdate) || 0), 0);
+      const totalWrongPunchToday = dailyEnriched.reduce((s, z) => s + (Number(z.wrongPunch) || 0), 0);
+      const totalIncorrectStageToday = dailyEnriched.reduce((s, z) => s + (Number(z.incorrectStage) || 0), 0);
 
       // Fill summary cards
       document.getElementById('totalTicketsMonthly').textContent = totalTicketsMonthly;
       document.getElementById('totalMissedReplyMonthly').textContent = totalMissedReplyMonthly;
       document.getElementById('totalMissedOrderMonthly').textContent = totalMissedOrderMonthly;
       document.getElementById('totalMissedUpdateMonthly').textContent = totalMissedUpdateMonthly;
+      document.getElementById('totalWrongPunchMonthly').textContent = totalWrongPunchMonthly;
+      document.getElementById('totalIncorrectStageMonthly').textContent = totalIncorrectStageMonthly;
 
       document.getElementById('totalTicketsToday').textContent = totalTicketsToday;
       document.getElementById('totalMissedReplyToday').textContent = totalMissedReplyToday;
       document.getElementById('totalMissedOrderToday').textContent = totalMissedOrderToday;
       document.getElementById('totalMissedUpdateToday').textContent = totalMissedUpdateToday;
+      document.getElementById('totalWrongPunchToday').textContent = totalWrongPunchToday;
+      document.getElementById('totalIncorrectStageToday').textContent = totalIncorrectStageToday;
 
-      // Zone cards - combine monthly and daily data
+      // Zone cards
       const zoneCards = document.getElementById('zoneCards');
       zoneCards.innerHTML = '';
       monthlyEnriched.forEach((zoneMonthly, idx) => {
@@ -321,10 +399,13 @@
         card.className = 'bg-white rounded-xl shadow-lg p-6 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-t-4';
         card.style.borderTopColor = zoneMonthly.color;
         
-        // Calculate miss percentages for monthly
         const totalCountMonthly = Number(zoneMonthly.totalCount) || 0;
+        const totalInquiriesMonthly = Number(zoneMonthly.totalInquiries) || 0;
+        
         const missedReplyPercentMonthly = totalCountMonthly ? ((Number(zoneMonthly.missedReply) || 0) / totalCountMonthly * 100).toFixed(1) : '0.0';
-        const totalMissedCountMonthly = (Number(zoneMonthly.missedReply) || 0) + (Number(zoneMonthly.missedOrder) || 0) + (Number(zoneMonthly.wrongReply) || 0) + (Number(zoneMonthly.missedUpdate) || 0);
+        
+        const totalMissedCountMonthly = (Number(zoneMonthly.missedReply) || 0) + (Number(zoneMonthly.missedOrder) || 0) + 
+                                        (Number(zoneMonthly.wrongReply) || 0) + (Number(zoneMonthly.missedUpdate) || 0);
         const overallMissedPercentMonthly = totalCountMonthly ? (totalMissedCountMonthly / totalCountMonthly * 100).toFixed(1) : '0.0';
         
         const todayCount = Number(zoneDaily.totalCount) || 0;
@@ -346,7 +427,7 @@
           <div class="space-y-2 text-sm mb-3">
             <div class="flex justify-between">
               <span class="text-gray-600">Total Inquiries:</span>
-              <span class="font-semibold">${Number(zoneMonthly.totalInquiries) || 0}</span>
+              <span class="font-semibold">${totalInquiriesMonthly}</span>
             </div>
             <div class="flex justify-between">
               <span class="text-gray-600">Assignee:</span>
@@ -360,7 +441,7 @@
                 <span class="text-xs font-bold text-gray-700">${missedReplyPercentMonthly}%</span>
               </div>
               <div class="w-full bg-gray-200 rounded-full h-2">
-                <div class="${zoneMonthly.bgColor} h-2 rounded-full transition-all duration-300" style="width:${missedReplyPercentMonthly}%"></div>
+                <div class="${zoneMonthly.bgColor} h-2 rounded-full transition-all duration-300" style="width:${Math.min(missedReplyPercentMonthly, 100)}%"></div>
               </div>
             </div>
             <div>
@@ -369,7 +450,7 @@
                 <span class="text-xs font-bold text-gray-700">${overallMissedPercentMonthly}%</span>
               </div>
               <div class="w-full bg-gray-200 rounded-full h-2">
-                <div class="${zoneMonthly.bgColor} h-2 rounded-full transition-all duration-300" style="width:${overallMissedPercentMonthly}%"></div>
+                <div class="${zoneMonthly.bgColor} h-2 rounded-full transition-all duration-300" style="width:${Math.min(overallMissedPercentMonthly, 100)}%"></div>
               </div>
             </div>
           </div>
@@ -378,12 +459,10 @@
         zoneCards.appendChild(card);
       });
 
-      // Table body
+      // Monthly table body
       const tableBody = document.getElementById('tableBody');
       tableBody.innerHTML = '';
       monthlyEnriched.forEach((zoneMonthly, idx) => {
-        const zoneDaily = dailyEnriched[idx] || {};
-        
         const tr = document.createElement('tr');
         tr.className = `${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition cursor-pointer`;
         tr.innerHTML = `
@@ -398,26 +477,59 @@
           <td class="px-6 py-4 text-center">
             <span class="${zoneMonthly.bgColor} text-white px-3 py-1 rounded-full font-bold">${Number(zoneMonthly.totalCount) || 0}</span>
           </td>
-          <td class="px-6 py-4 text-center">
-            <span class="bg-gray-600 text-white px-3 py-1 rounded-full font-bold">${Number(zoneDaily.totalCount) || 0}</span>
-          </td>
           <td class="px-6 py-4 text-center text-blue-600 font-semibold">${Number(zoneMonthly.missedReply) || 0}</td>
           <td class="px-6 py-4 text-center text-red-600 font-semibold">${Number(zoneMonthly.missedOrder) || 0}</td>
           <td class="px-6 py-4 text-center text-amber-600 font-semibold">${Number(zoneMonthly.missedUpdate) || 0}</td>
           <td class="px-6 py-4 text-center text-green-600 font-semibold">${Number(zoneMonthly.wrongReply) || 0}</td>
+          <td class="px-6 py-4 text-center text-red-500 font-semibold">${Number(zoneMonthly.wrongPunch) || 0}</td>
+          <td class="px-6 py-4 text-center text-indigo-600 font-semibold">${Number(zoneMonthly.incorrectStage) || 0}</td>
         `;
-        tr.addEventListener('click', () => openModal(zoneMonthly, zoneDaily));
+        tr.addEventListener('click', () => openModal(zoneMonthly, dailyEnriched[idx] || {}));
         tableBody.appendChild(tr);
       });
 
-      // Chart.js grouped bars - Monthly data
+      // Daily table body
+      const dailyTableBody = document.getElementById('dailyTableBody');
+      dailyTableBody.innerHTML = '';
+
+      dailyEnriched.forEach((zoneDaily, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = `${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-green-50 transition`;
+
+        tr.innerHTML = `
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full ${zoneDaily.bgColor}"></div>
+              <span class="font-semibold text-gray-800">${escapeHtml(zoneDaily.zone)}</span>
+            </div>
+          </td>
+          <td class="px-6 py-4 text-gray-700">${escapeHtml(zoneDaily.assignee || '')}</td>
+          <td class="px-6 py-4 text-center font-semibold">${Number(zoneDaily.totalInquiries) || 0}</td>
+          <td class="px-6 py-4 text-center">
+            <span class="${zoneDaily.bgColor} text-white px-3 py-1 rounded-full font-bold">
+              ${Number(zoneDaily.totalCount) || 0}
+            </span>
+          </td>
+          <td class="px-6 py-4 text-center text-blue-600 font-semibold">${Number(zoneDaily.missedReply) || 0}</td>
+          <td class="px-6 py-4 text-center text-red-600 font-semibold">${Number(zoneDaily.missedOrder) || 0}</td>
+          <td class="px-6 py-4 text-center text-amber-600 font-semibold">${Number(zoneDaily.missedUpdate) || 0}</td>
+          <td class="px-6 py-4 text-center text-green-600 font-semibold">${Number(zoneDaily.wrongReply) || 0}</td>
+          <td class="px-6 py-4 text-center text-red-500 font-semibold">${Number(zoneDaily.wrongPunch) || 0}</td>
+          <td class="px-6 py-4 text-center text-indigo-600 font-semibold">${Number(zoneDaily.incorrectStage) || 0}</td>
+        `;
+
+        dailyTableBody.appendChild(tr);
+      });
+
+      // ========== ZONE CHART (Normal grouped bar - NO stacking) ==========
       const chartLabels = monthlyEnriched.map(z => z.zone);
       const missedReplyData = monthlyEnriched.map(z => Number(z.missedReply) || 0);
       const missedOrderData = monthlyEnriched.map(z => Number(z.missedOrder) || 0);
       const missedUpdateData = monthlyEnriched.map(z => Number(z.missedUpdate) || 0);
       const wrongReplyData = monthlyEnriched.map(z => Number(z.wrongReply) || 0);
+      const wrongPunchData = monthlyEnriched.map(z => Number(z.wrongPunch) || 0);
+      const incorrectStageData = monthlyEnriched.map(z => Number(z.incorrectStage) || 0);
 
-      // Destroy previous chart if exists
       if (window._dashboardChart) {
         window._dashboardChart.destroy();
       }
@@ -431,7 +543,9 @@
             { label: 'Missed Reply', data: missedReplyData, backgroundColor: '#3B82F6', borderRadius: 6 },
             { label: 'Missed Order', data: missedOrderData, backgroundColor: '#EF4444', borderRadius: 6 },
             { label: 'Missed Update', data: missedUpdateData, backgroundColor: '#F59E0B', borderRadius: 6 },
-            { label: 'Wrong Reply', data: wrongReplyData, backgroundColor: '#10B981', borderRadius: 6 }
+            { label: 'Wrong Reply', data: wrongReplyData, backgroundColor: '#10B981', borderRadius: 6 },
+            { label: 'Wrong Punch', data: wrongPunchData, backgroundColor: '#EC4899', borderRadius: 6 },
+            { label: 'Incorrect Stage', data: incorrectStageData, backgroundColor: '#6366F1', borderRadius: 6 }
           ]
         },
         options: {
@@ -440,6 +554,9 @@
           plugins: {
             tooltip: { mode: 'index', intersect: false },
             legend: { position: 'bottom' },
+            datalabels: {
+              display: false // No data labels for zone chart
+            }
           },
           scales: {
             x: { stacked: false, grid: { display: false } },
@@ -448,20 +565,135 @@
         }
       });
 
-      // Hide loading, show main
+     // ========== EMPLOYEE CHART (STACKED HORIZONTAL BAR with Data Labels) ==========
+if (employeeWiseData && employeeWiseData.length > 0) {
+  console.log("Rendering stacked horizontal employee chart with:", employeeWiseData);
+
+  // Sort by total errors (descending)
+  const sortedData = [...employeeWiseData].sort((a, b) => 
+    ((b.wrongPunch || 0) + (b.incorrectStage || 0)) - ((a.wrongPunch || 0) + (a.incorrectStage || 0))
+  );
+
+  const empLabels = sortedData.map(e => e.employee);
+  const wrongPunchValues = sortedData.map(e => e.wrongPunch || 0);
+  const incorrectStageValues = sortedData.map(e => e.incorrectStage || 0);
+
+  // Adjust chart height based on number of employees (for horizontal chart)
+  const chartContainer = document.getElementById('employeeChart').parentElement;
+  const dynamicHeight = Math.max(420, sortedData.length * 40);
+  chartContainer.style.height = dynamicHeight + 'px';
+
+  if (window._employeeChart) window._employeeChart.destroy();
+
+  const empCtx = document.getElementById('employeeChart').getContext('2d');
+  window._employeeChart = new Chart(empCtx, {
+    type: 'bar',
+    data: {
+      labels: empLabels,
+      datasets: [
+        {
+          label: 'Wrong Punch',
+          data: wrongPunchValues,
+          backgroundColor: '#FF1A1A',
+          borderRadius: 6,
+        },
+        {
+          label: 'Incorrect Stage',
+          data: incorrectStageValues,
+          backgroundColor: '#F59E0B',
+          borderRadius: 6,
+        }
+      ]
+    },
+    options: {
+      indexAxis: 'y',  // THIS MAKES IT HORIZONTAL
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { 
+          position: 'bottom',
+          labels: { 
+            font: { size: 12, weight: 'bold' },
+            usePointStyle: true,
+            padding: 20
+          } 
+        },
+        tooltip: { 
+          mode: 'index',
+          intersect: false,
+          backgroundColor: '#1f2937', 
+          titleColor: '#fff', 
+          bodyColor: '#fff',
+          callbacks: {
+            afterBody: function(context) {
+              const dataIndex = context[0].dataIndex;
+              const total = wrongPunchValues[dataIndex] + incorrectStageValues[dataIndex];
+              return `\nTotal: ${total}`;
+            }
+          }
+        },
+        datalabels: {
+          display: function(context) {
+            return context.dataset.data[context.dataIndex] > 0;
+          },
+          color: '#ffffff',
+          font: {
+            weight: 'bold',
+            size: 11
+          },
+          anchor: 'center',
+          align: 'center',
+          formatter: function(value) {
+            return value > 0 ? value : '';
+          }
+        }
+      },
+      scales: {
+        x: { 
+          stacked: true,
+          beginAtZero: true, 
+          grid: { color: '#e5e7eb' },
+          ticks: { 
+            stepSize: 1,
+            font: { size: 12 } 
+          },
+          title: {
+            display: true,
+            text: 'Number of Errors',
+            font: { size: 12, weight: 'bold' }
+          }
+        },
+        y: { 
+          stacked: true,
+          grid: { display: false },
+          ticks: {
+            font: { size: 11 }
+          }
+        }
+      }
+    }
+  });
+} else {
+  // No employee data
+  const empCtx = document.getElementById('employeeChart').getContext('2d');
+  if (window._employeeChart) window._employeeChart.destroy();
+  empCtx.font = '16px Arial';
+  empCtx.fillStyle = '#6B7280';
+  empCtx.textAlign = 'center';
+  empCtx.fillText('No employee error data available', empCtx.canvas.width / 2, empCtx.canvas.height / 2);
+}
+
+      // Show dashboard
       document.getElementById('loading').classList.add('hidden');
       document.getElementById('mainContent').classList.remove('hidden');
+      document.getElementById('subtitle').textContent = `Last updated: ${new Date().toLocaleString()}`;
 
-      // Update subtitle with timestamp
-      const now = new Date();
-      document.getElementById('subtitle').textContent = `Last updated: ${now.toLocaleString()}`;
     } catch (err) {
       console.error("Render error:", err);
-      document.getElementById('loading').innerHTML = '<div class="text-center text-red-600">Error rendering dashboard. Check console.</div>';
+      document.getElementById('loading').innerHTML = `<div class="text-center text-red-600">Error rendering dashboard: ${err.message}</div>`;
     }
   }
 
-  // Escape HTML to avoid injection
   function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str)
@@ -472,7 +704,6 @@
       .replaceAll("'", '&#039;');
   }
 
-  // Modal open/close
   function openModal(zoneMonthly, zoneDaily) {
     const modal = document.getElementById('detailModal');
     const title = document.getElementById('modalTitle');
@@ -480,108 +711,167 @@
 
     title.textContent = `${zoneMonthly.zone} - Detailed Report`;
 
-    // Build modal HTML with monthly and daily comparison
-    const missedreplyRate = zoneMonthly.totalCount ? (((zoneMonthly.missedReply) / zoneMonthly.totalCount) * 100).toFixed(1) : '0.0';
-    const missedorderRate = zoneMonthly.totalCount ? (((zoneMonthly.missedOrder) / zoneMonthly.totalCount) * 100).toFixed(1) : '0.0';
-    const missedupdateRate = zoneMonthly.totalCount ? (((zoneMonthly.missedUpdate) / zoneMonthly.totalCount) * 100).toFixed(1) : '0.0';
-    const wrongReplyRate = zoneMonthly.totalCount ? (((zoneMonthly.wrongReply) / zoneMonthly.totalCount) * 100).toFixed(1) : '0.0';
+    const totalCount = Number(zoneMonthly.totalCount) || 0;
+    const totalInquiries = Number(zoneMonthly.totalInquiries) || 0;
     
-    const missedTotal = (Number(zoneMonthly.missedReply) || 0) + (Number(zoneMonthly.missedOrder) || 0) + (Number(zoneMonthly.missedUpdate) || 0) + (Number(zoneMonthly.wrongReply) || 0);
-    const missedPercent = zoneMonthly.totalCount ? ((missedTotal / zoneMonthly.totalCount) * 100).toFixed(1) : '0.0';
+    const missedreplyRate = totalCount ? ((Number(zoneMonthly.missedReply) || 0) / totalCount * 100).toFixed(1) : '0.0';
+    const missedorderRate = totalCount ? ((Number(zoneMonthly.missedOrder) || 0) / totalCount * 100).toFixed(1) : '0.0';
+    const missedupdateRate = totalCount ? ((Number(zoneMonthly.missedUpdate) || 0) / totalCount * 100).toFixed(1) : '0.0';
+    const wrongReplyRate = totalCount ? ((Number(zoneMonthly.wrongReply) || 0) / totalCount * 100).toFixed(1) : '0.0';
+    
+    const wrongPunchRate = totalInquiries ? ((Number(zoneMonthly.wrongPunch) || 0) / totalInquiries * 100).toFixed(1) : '0.0';
+    const incorrectStageRate = totalInquiries ? ((Number(zoneMonthly.incorrectStage) || 0) / totalInquiries * 100).toFixed(1) : '0.0';
+    
+    const missedTotal = (Number(zoneMonthly.missedReply) || 0) + (Number(zoneMonthly.missedOrder) || 0) + 
+                        (Number(zoneMonthly.missedUpdate) || 0) + (Number(zoneMonthly.wrongReply) || 0);
+    const missedPercent = totalCount ? ((missedTotal / totalCount) * 100).toFixed(1) : '0.0';
+
+    const dailyTotalCount = Number(zoneDaily.totalCount) || 0;
 
     content.innerHTML = `
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-blue-50 p-4 rounded-lg">
-          <div class="text-sm text-gray-600">Ticket Assignee</div>
-          <div class="text-xl font-bold text-blue-700">${escapeHtml(zoneMonthly.assignee)}</div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="bg-blue-50 p-3 rounded-lg">
+          <div class="text-xs text-gray-500">Assignee</div>
+          <div class="text-base font-bold text-blue-700 truncate">${escapeHtml(zoneMonthly.assignee)}</div>
         </div>
-        <div class="bg-purple-50 p-4 rounded-lg">
-          <div class="text-sm text-gray-600">Total Inquiries</div>
-          <div class="text-xl font-bold text-purple-700">${Number(zoneMonthly.totalInquiries) || 0}</div>
-        </div>
-      </div>
-
-      <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl mt-4">
-        <h4 class="text-lg font-bold mb-3">Performance Metrics</h4>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="bg-white p-4 rounded-lg shadow-sm">
-            <div class="text-sm text-gray-600">Monthly Tickets</div>
-            <div class="text-2xl font-bold">${Number(zoneMonthly.totalCount) || 0}</div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm">
-            <div class="text-sm text-gray-600">Today Tickets</div>
-            <div class="text-2xl font-bold">${Number(zoneDaily.totalCount) || 0}</div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm">
-            <div class="text-sm text-gray-600">Missed Reply</div>
-            <div class="text-2xl font-bold text-blue-600">${Number(zoneMonthly.missedReply) || 0}</div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm">
-            <div class="text-sm text-gray-600">Missed Order</div>
-            <div class="text-2xl font-bold text-red-600">${Number(zoneMonthly.missedOrder) || 0}</div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm">
-            <div class="text-sm text-gray-600">Missed Update</div>
-            <div class="text-2xl font-bold text-amber-600">${Number(zoneMonthly.missedUpdate) || 0}</div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm">
-            <div class="text-sm text-gray-600">Wrong Reply</div>
-            <div class="text-2xl font-bold text-green-600">${Number(zoneMonthly.wrongReply) || 0}</div>
-          </div>
+        <div class="bg-purple-50 p-3 rounded-lg">
+          <div class="text-xs text-gray-500">Total Inquiries (Monthly)</div>
+          <div class="text-base font-bold text-purple-700">${totalInquiries}</div>
         </div>
       </div>
 
-      <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl mt-4">
-        <h4 class="text-lg font-bold mb-3 text-green-800">Performance Rate (Monthly)</h4>
-        <div class="space-y-3">
-          <div>
-            <div class="flex justify-between mb-1">
-              <span class="text-sm font-medium text-gray-700">Missed Reply</span>
-              <span class="text-sm font-bold text-gray-800">${missedreplyRate}%</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3">
-              <div class="bg-blue-500 h-3 rounded-full" style="width:${missedreplyRate}%"></div>
-            </div>
-          </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-3 rounded-lg text-center">
+          <div class="text-xs opacity-90">Monthly Tickets</div>
+          <div class="text-2xl font-bold">${totalCount}</div>
+        </div>
+        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-3 rounded-lg text-center">
+          <div class="text-xs opacity-90">Today Tickets</div>
+          <div class="text-2xl font-bold">${dailyTotalCount}</div>
+        </div>
+      </div>
 
-          <div>
-            <div class="flex justify-between mb-1">
-              <span class="text-sm font-medium text-gray-700">Missed Order</span>
-              <span class="text-sm font-bold text-gray-800">${missedorderRate}%</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3">
-              <div class="bg-red-500 h-3 rounded-full" style="width:${missedorderRate}%"></div>
-            </div>
+      <div class="bg-gray-50 p-4 rounded-xl mb-4">
+        <h4 class="text-sm font-bold text-gray-700 mb-3">Monthly Metrics</h4>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-white p-2 rounded-lg shadow-sm text-center">
+            <div class="text-xs text-gray-500">Missed Reply</div>
+            <div class="text-lg font-bold text-blue-600">${Number(zoneMonthly.missedReply) || 0}</div>
           </div>
-
-          <div>
-            <div class="flex justify-between mb-1">
-              <span class="text-sm font-medium text-gray-700">Missed Update</span>
-              <span class="text-sm font-bold text-gray-800">${missedupdateRate}%</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3">
-              <div class="bg-amber-500 h-3 rounded-full" style="width:${missedupdateRate}%"></div>
-            </div>
+          <div class="bg-white p-2 rounded-lg shadow-sm text-center">
+            <div class="text-xs text-gray-500">Missed Order</div>
+            <div class="text-lg font-bold text-red-600">${Number(zoneMonthly.missedOrder) || 0}</div>
           </div>
-
-          <div>
-            <div class="flex justify-between mb-1">
-              <span class="text-sm font-medium text-gray-700">Wrong Reply</span>
-              <span class="text-sm font-bold text-gray-800">${wrongReplyRate}%</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3">
-              <div class="bg-green-500 h-3 rounded-full" style="width:${wrongReplyRate}%"></div>
-            </div>
+          <div class="bg-white p-2 rounded-lg shadow-sm text-center">
+            <div class="text-xs text-gray-500">Missed Update</div>
+            <div class="text-lg font-bold text-amber-600">${Number(zoneMonthly.missedUpdate) || 0}</div>
           </div>
+          <div class="bg-white p-2 rounded-lg shadow-sm text-center">
+            <div class="text-xs text-gray-500">Wrong Reply</div>
+            <div class="text-lg font-bold text-green-600">${Number(zoneMonthly.wrongReply) || 0}</div>
+          </div>
+          <div class="bg-white p-2 rounded-lg shadow-sm text-center">
+            <div class="text-xs text-gray-500">Wrong Punch</div>
+            <div class="text-lg font-bold text-pink-600">${Number(zoneMonthly.wrongPunch) || 0}</div>
+          </div>
+          <div class="bg-white p-2 rounded-lg shadow-sm text-center">
+            <div class="text-xs text-gray-500">Incorrect Stage</div>
+            <div class="text-lg font-bold text-indigo-600">${Number(zoneMonthly.incorrectStage) || 0}</div>
+          </div>
+        </div>
+      </div>
 
-          <div class="mt-4 pt-4 border-t-2 border-gray-300">
-            <div class="flex justify-between mb-1">
-              <span class="text-sm font-bold text-gray-800">Overall Missed</span>
-              <span class="text-sm font-bold text-red-600">${missedPercent}%</span>
+      <div class="bg-green-50 p-4 rounded-xl mb-4">
+        <h4 class="text-sm font-bold text-green-700 mb-3">Today's Metrics</h4>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-white p-2 rounded-lg shadow-sm text-center">
+            <div class="text-xs text-gray-500">Missed Reply</div>
+            <div class="text-lg font-bold text-blue-600">${Number(zoneDaily.missedReply) || 0}</div>
+          </div>
+          <div class="bg-white p-2 rounded-lg shadow-sm text-center">
+            <div class="text-xs text-gray-500">Missed Order</div>
+            <div class="text-lg font-bold text-red-600">${Number(zoneDaily.missedOrder) || 0}</div>
+          </div>
+          <div class="bg-white p-2 rounded-lg shadow-sm text-center">
+            <div class="text-xs text-gray-500">Missed Update</div>
+            <div class="text-lg font-bold text-amber-600">${Number(zoneDaily.missedUpdate) || 0}</div>
+          </div>
+          <div class="bg-white p-2 rounded-lg shadow-sm text-center">
+            <div class="text-xs text-gray-500">Wrong Reply</div>
+            <div class="text-lg font-bold text-green-600">${Number(zoneDaily.wrongReply) || 0}</div>
+          </div>
+          <div class="bg-white p-2 rounded-lg shadow-sm text-center">
+            <div class="text-xs text-gray-500">Wrong Punch</div>
+            <div class="text-lg font-bold text-pink-600">${Number(zoneDaily.wrongPunch) || 0}</div>
+          </div>
+          <div class="bg-white p-2 rounded-lg shadow-sm text-center">
+            <div class="text-xs text-gray-500">Incorrect Stage</div>
+            <div class="text-lg font-bold text-indigo-600">${Number(zoneDaily.incorrectStage) || 0}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-xl">
+        <h4 class="text-sm font-bold text-gray-700 mb-3">Performance Rate (Monthly)</h4>
+        
+        <div class="text-xs text-gray-500 mb-2 font-medium">Based on Total Tickets (${totalCount})</div>
+        <div class="space-y-2 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-gray-600 w-24">Missed Reply</span>
+            <div class="flex-1 bg-gray-200 rounded-full h-2">
+              <div class="bg-blue-500 h-2 rounded-full" style="width:${Math.min(missedreplyRate, 100)}%"></div>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-4">
-              <div class="bg-gradient-to-r from-red-500 to-orange-500 h-4 rounded-full" style="width:${missedPercent}%"></div>
+            <span class="text-xs font-bold text-gray-700 w-12 text-right">${missedreplyRate}%</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-gray-600 w-24">Missed Order</span>
+            <div class="flex-1 bg-gray-200 rounded-full h-2">
+              <div class="bg-red-500 h-2 rounded-full" style="width:${Math.min(missedorderRate, 100)}%"></div>
             </div>
+            <span class="text-xs font-bold text-gray-700 w-12 text-right">${missedorderRate}%</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-gray-600 w-24">Missed Update</span>
+            <div class="flex-1 bg-gray-200 rounded-full h-2">
+              <div class="bg-amber-500 h-2 rounded-full" style="width:${Math.min(missedupdateRate, 100)}%"></div>
+            </div>
+            <span class="text-xs font-bold text-gray-700 w-12 text-right">${missedupdateRate}%</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-gray-600 w-24">Wrong Reply</span>
+            <div class="flex-1 bg-gray-200 rounded-full h-2">
+              <div class="bg-green-500 h-2 rounded-full" style="width:${Math.min(wrongReplyRate, 100)}%"></div>
+            </div>
+            <span class="text-xs font-bold text-gray-700 w-12 text-right">${wrongReplyRate}%</span>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 mb-2 font-medium">Based on Total Inquiries (${totalInquiries})</div>
+        <div class="space-y-2 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-gray-600 w-24">Wrong Punch</span>
+            <div class="flex-1 bg-gray-200 rounded-full h-2">
+              <div class="bg-pink-500 h-2 rounded-full" style="width:${Math.min(wrongPunchRate, 100)}%"></div>
+            </div>
+            <span class="text-xs font-bold text-gray-700 w-12 text-right">${wrongPunchRate}%</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-gray-600 w-24">Incorrect Stage</span>
+            <div class="flex-1 bg-gray-200 rounded-full h-2">
+              <div class="bg-indigo-500 h-2 rounded-full" style="width:${Math.min(incorrectStageRate, 100)}%"></div>
+            </div>
+            <span class="text-xs font-bold text-gray-700 w-12 text-right">${incorrectStageRate}%</span>
+          </div>
+        </div>
+        
+        <div class="pt-2 mt-2 border-t border-gray-300">
+          <div class="text-xs text-gray-500 mb-2 font-medium">Overall (Missed Reply + Order + Update + Wrong Reply)</div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-gray-800 w-24">Overall Missed</span>
+            <div class="flex-1 bg-gray-200 rounded-full h-3">
+              <div class="bg-gradient-to-r from-red-500 to-orange-500 h-3 rounded-full" style="width:${Math.min(missedPercent, 100)}%"></div>
+            </div>
+            <span class="text-xs font-bold text-red-600 w-12 text-right">${missedPercent}%</span>
           </div>
         </div>
       </div>
@@ -602,7 +892,6 @@
     if (e.target === document.getElementById('detailModal')) closeModal();
   });
 
-  // Function to load data from Google Apps Script
   async function loadData() {
     try {
       console.log('Fetching data from:', SCRIPT_URL);
@@ -614,16 +903,19 @@
       }
       
       const data = await response.json();
-      console.log('Data received:', data);
+      console.log('Full data received:', data);
       
       allData = data;
-      
-      // Render dashboard with both monthly and daily data
+
       if (data.monthlyData && data.dailyData) {
-        renderDashboard(data.monthlyData, data.dailyData);
+        renderDashboard(
+          data.monthlyData, 
+          data.dailyData, 
+          data.employeeWiseData || []
+        );
         renderEmployeeStatus(data.loginStatus);
       } else {
-        document.getElementById('loading').innerHTML = '<div class="text-center text-red-600">Invalid data format received from server.</div>';
+        document.getElementById('loading').innerHTML = '<div class="text-center text-red-600">Missing monthly or daily data</div>';
       }
       
     } catch (error) {
@@ -640,11 +932,9 @@
     }
   }
 
-  // Initial load on page ready
   document.addEventListener('DOMContentLoaded', function () {
     loadData();
     
-    // Auto-refresh every 60 seconds
     setInterval(function() {
       console.log('Auto-refreshing dashboard data...');
       loadData();
