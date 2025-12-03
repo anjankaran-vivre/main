@@ -18,10 +18,9 @@
     html, body { height: 100%; }
     body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
     .modal-scroll { max-height: 85vh; overflow-y: auto; }
-    .legend-swatch { width: 12px; height: 12px; display:inline-block; margin-right:8px; vertical-align:middle; border-radius: 2px; }
     .status-dot {
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       display: inline-block;
       margin-left: 8px;
@@ -38,15 +37,72 @@
       background-color: #F59E0B;
       box-shadow: 0 0 8px #F59E0B;
     }
+    
+    /* Slide animations */
+    .slide-container {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.6s ease-in-out;
+      pointer-events: none;
+    }
+    
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      position: relative;
+      pointer-events: auto;
+    }
+    
+    .slide.exit {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    
+    /* Simple slide indicators */
+    .slide-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #CBD5E1;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .slide-dot.active {
+      background-color: #3B82F6;
+      transform: scale(1.3);
+    }
+    
+    /* Progress bar */
+    .progress-bar {
+      height: 2px;
+      background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+      width: 0%;
+      transition: width 0.1s linear;
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
 
-  <div id="app" class="p-8 max-w-[1920px] mx-auto">
+  <div id="app" class="p-4 max-w-[1920px] mx-auto">
     <!-- Header -->
-    <div class="text-center mb-8">
-      <h1 class="text-5xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">OPS OUT TICKET DASHBOARD</h1>
-      <p id="subtitle" class="text-gray-600 text-lg">Performance Overview</p>
+    <div class="flex items-start justify-between mb-4">
+      <div id="lastUpdateContainer" class="text-sm text-gray-500">
+        <span id="lastUpdateTime">Last updated: --</span>
+      </div>
+      <div class="text-center flex-1">
+        <h1 class="text-4xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">OPS OUT TICKET DASHBOARD</h1>
+      </div>
+      <div class="w-40"></div>
     </div>
 
     <!-- Loading state -->
@@ -60,22 +116,22 @@
 
     <!-- Main content (hidden until loaded) -->
     <div id="mainContent" class="hidden">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <!-- Left Section - Main Dashboard (9 columns) -->
-        <div class="lg:col-span-9 space-y-6">
+        <div class="lg:col-span-9 space-y-4">
           
           <!-- Summary tiles - All 6 cards in ONE row -->
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             <!-- Total Tickets - Teal -->
             <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-4 rounded-xl shadow-lg">
-              <div class="text-xs opacity-90 mb-2">Total Tickets</div>
+              <div class="text-xs opacity-100 font-bold mb-2">Total Tickets</div>
               <div class="flex justify-between items-end">
                 <div>
-                  <div class="text-[10px] opacity-75">Today</div>
+                  <div class="text-[10px] opacity-85">Today</div>
                   <div id="totalTicketsToday" class="text-xl font-bold">0</div>
                 </div>
                 <div>
-                  <div class="text-[10px] opacity-75">Monthly</div>
+                  <div class="text-[10px] opacity-85">This Month</div>
                   <div id="totalTicketsMonthly" class="text-xl font-bold">0</div>
                 </div>
               </div>
@@ -83,14 +139,14 @@
 
             <!-- Missed Replies - Blue -->
             <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-xl shadow-lg">
-              <div class="text-xs opacity-90 mb-2">Missed Replies</div>
+              <div class="text-xs opacity-100 font-bold mb-2">Missed Replies</div>
               <div class="flex justify-between items-end">
                 <div>
-                  <div class="text-[10px] opacity-75">Today</div>
+                  <div class="text-[10px] opacity-85">Today</div>
                   <div id="totalMissedReplyToday" class="text-xl font-bold">0</div>
                 </div>
                 <div>
-                  <div class="text-[10px] opacity-75">Monthly</div>
+                  <div class="text-[10px] opacity-85">This Month</div>
                   <div id="totalMissedReplyMonthly" class="text-xl font-bold">0</div>
                 </div>
               </div>
@@ -98,14 +154,14 @@
 
             <!-- Missed Orders - Red -->
             <div class="bg-gradient-to-br from-red-500 to-red-600 text-white p-4 rounded-xl shadow-lg">
-              <div class="text-xs opacity-90 mb-2">Missed Orders</div>
+              <div class="text-xs opacity-100 font-bold mb-2">Missed Orders</div>
               <div class="flex justify-between items-end">
                 <div>
-                  <div class="text-[10px] opacity-75">Today</div>
+                  <div class="text-[10px] opacity-85">Today</div>
                   <div id="totalMissedOrderToday" class="text-xl font-bold">0</div>
                 </div>
                 <div>
-                  <div class="text-[10px] opacity-75">Monthly</div>
+                  <div class="text-[10px] opacity-85">This Month</div>
                   <div id="totalMissedOrderMonthly" class="text-xl font-bold">0</div>
                 </div>
               </div>
@@ -113,14 +169,14 @@
 
             <!-- Missed Updates - Amber -->
             <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-4 rounded-xl shadow-lg">
-              <div class="text-xs opacity-90 mb-2">Missed Updates</div>
+              <div class="text-xs opacity-100 font-bold mb-2">Missed Updates</div>
               <div class="flex justify-between items-end">
                 <div>
-                  <div class="text-[10px] opacity-75">Today</div>
+                  <div class="text-[10px] opacity-85">Today</div>
                   <div id="totalMissedUpdateToday" class="text-xl font-bold">0</div>
                 </div>
                 <div>
-                  <div class="text-[10px] opacity-75">Monthly</div>
+                  <div class="text-[10px] opacity-85">This Month</div>
                   <div id="totalMissedUpdateMonthly" class="text-xl font-bold">0</div>
                 </div>
               </div>
@@ -128,14 +184,14 @@
 
             <!-- Wrong Punch - Pink -->
             <div class="bg-gradient-to-br from-pink-500 to-pink-600 text-white p-4 rounded-xl shadow-lg">
-              <div class="text-xs opacity-90 mb-2">Wrong Punch</div>
+              <div class="text-xs opacity-100 font-bold mb-2">Wrong Punch</div>
               <div class="flex justify-between items-end">
                 <div>
-                  <div class="text-[10px] opacity-75">Today</div>
+                  <div class="text-[10px] opacity-85">Today</div>
                   <div id="totalWrongPunchToday" class="text-xl font-bold">0</div>
                 </div>
                 <div>
-                  <div class="text-[10px] opacity-75">Monthly</div>
+                  <div class="text-[10px] opacity-85">This Month</div>
                   <div id="totalWrongPunchMonthly" class="text-xl font-bold">0</div>
                 </div>
               </div>
@@ -143,14 +199,14 @@
 
             <!-- Incorrect Stage - Indigo -->
             <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-4 rounded-xl shadow-lg">
-              <div class="text-xs opacity-90 mb-2">Incorrect Stage</div>
+              <div class="text-xs opacity-90 font-bold mb-2">Incorrect Stage</div>
               <div class="flex justify-between items-end">
                 <div>
-                  <div class="text-[10px] opacity-75">Today</div>
+                  <div class="text-[10px] opacity-85">Today</div>
                   <div id="totalIncorrectStageToday" class="text-xl font-bold">0</div>
                 </div>
                 <div>
-                  <div class="text-[10px] opacity-75">Monthly</div>
+                  <div class="text-[10px] opacity-85">This Month</div>
                   <div id="totalIncorrectStageMonthly" class="text-xl font-bold">0</div>
                 </div>
               </div>
@@ -158,86 +214,114 @@
           </div>
 
           <!-- Zone cards -->
-          <div id="zoneCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+          <div id="zoneCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
 
-          <!-- Zone Chart -->
-          <div class="bg-white rounded-2xl shadow-xl p-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Zone-wise Ticket Analysis</h2>
-            <div class="w-full" style="height:420px;">
-              <canvas id="barChart"></canvas>
+          <!-- Simple Slide Controls -->
+          <div class="flex items-center justify-center gap-3">
+            <div class="bg-gray-200 rounded-full overflow-hidden w-32 h-1">
+              <div id="slideProgress" class="progress-bar"></div>
             </div>
+            <div id="slideIndicators" class="flex items-center gap-2"></div>
+            <button id="pauseSlide" class="text-gray-400 hover:text-gray-600 transition text-xs">
+              <span id="pauseIcon">⏸</span>
+              <span id="playIcon" class="hidden">▶</span>
+            </button>
           </div>
 
-          <!-- Employee Performance Chart - STACKED VERTICAL COLUMN -->
-          <div class="bg-white rounded-2xl shadow-xl p-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">Employee-wise Errors (Wrong Punch & Incorrect Stage)</h2>
-            <div class="w-full" style="height:420px;">
-              <canvas id="employeeChart"></canvas>
-            </div>
-          </div>
+          <!-- Sliding Content Area -->
+          <div class="slide-container" style="min-height: 420px;">
+            
+            <!-- Slide 1: Charts -->
+            <div id="slide1" class="slide active">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <!-- Zone Chart -->
+                <div class="bg-white rounded-xl shadow-xl p-6">
+                  <h2 class="text-lg font-bold text-gray-800 mb-4">Zone-wise Ticket Analysis</h2>
+                  <div class="w-full" style="height:340px;">
+                    <canvas id="barChart"></canvas>
+                  </div>
+                </div>
 
-          <!-- Monthly table -->
-          <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
-              <h2 class="text-2xl font-bold">Monthly Zone Performance</h2>
+                <!-- Employee Performance Chart -->
+                <div class="bg-white rounded-xl shadow-xl p-6">
+                  <h2 class="text-lg font-bold text-gray-800 mb-4">Employee-Wise Errors Analysis</h2>
+                  <div class="w-full" style="height:340px;">
+                    <canvas id="employeeChart"></canvas>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="overflow-x-auto">
-              <table id="detailTable" class="w-full text-left">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-6 py-4 text-sm font-bold text-gray-700">Zone</th>
-                    <th class="px-6 py-4 text-sm font-bold text-gray-700">Assignee</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Total Inquiries</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Monthly Tickets</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Reply</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Order</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Update</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Wrong Reply</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Wrong Order Punch</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Incorrect Stage</th>
-                  </tr>
-                </thead>
-                <tbody id="tableBody" class="bg-white"></tbody>
-              </table>
-            </div>
-          </div>
 
-          <!-- Daily table -->
-          <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div class="bg-gradient-to-r from-green-600 to-teal-600 text-white p-6">
-              <h2 class="text-2xl font-bold">Daily Zone Performance</h2>
+            <!-- Slide 2: Monthly Table -->
+            <div id="slide2" class="slide">
+              <div class="bg-white rounded-xl shadow-xl overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4">
+                  <h2 class="text-xl font-bold">Monthly Zone Performance</h2>
+                </div>
+                <div class="overflow-x-auto">
+                  <table id="detailTable" class="w-full text-left">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-4 py-3 text-sm font-bold text-gray-700">Zone</th>
+                        <th class="px-4 py-3 text-sm font-bold text-gray-700">Assignee</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Total Inquiries</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Monthly Tickets</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Missed Reply</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Missed Order</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Missed Update</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Wrong Reply</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Wrong Punch</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Incorrect Stage</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tableBody" class="bg-white"></tbody>
+                    <tfoot id="monthlyTableFoot" class="bg-gradient-to-r from-blue-100 to-purple-100 font-bold"></tfoot>
+                  </table>
+                </div>
+              </div>
             </div>
-            <div class="overflow-x-auto">
-              <table id="dailyDetailTable" class="w-full text-left">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-6 py-4 text-sm font-bold text-gray-700">Zone</th>
-                    <th class="px-6 py-4 text-sm font-bold text-gray-700">Assignee</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Total Inquiries</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Total Tickets</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Reply</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Order</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Missed Update</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Wrong Reply</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Wrong Order Punch</th>
-                    <th class="px-6 py-4 text-center text-sm font-bold text-gray-700">Incorrect Stage</th>
-                  </tr>
-                </thead>
-                <tbody id="dailyTableBody" class="bg-white"></tbody>
-              </table>
+
+            <!-- Slide 3: Daily Table -->
+            <div id="slide3" class="slide">
+              <div class="bg-white rounded-xl shadow-xl overflow-hidden">
+                <div class="bg-gradient-to-r from-green-600 to-teal-600 text-white p-4">
+                  <h2 class="text-xl font-bold">Daily Zone Performance</h2>
+                </div>
+                <div class="overflow-x-auto">
+                  <table id="dailyDetailTable" class="w-full text-left">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-4 py-3 text-sm font-bold text-gray-700">Zone</th>
+                        <th class="px-4 py-3 text-sm font-bold text-gray-700">Assignee</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Total Inquiries</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Total Tickets</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Missed Reply</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Missed Order</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Missed Update</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Wrong Reply</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Wrong Punch</th>
+                        <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">Incorrect Stage</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dailyTableBody" class="bg-white"></tbody>
+                    <tfoot id="dailyTableFoot" class="bg-gradient-to-r from-green-100 to-teal-100 font-bold"></tfoot>
+                  </table>
+                </div>
+              </div>
             </div>
+
           </div>
 
         </div>
 
         <!-- Right Section - Employee Status (3 columns) -->
         <div class="lg:col-span-3">
-          <div class="bg-white rounded-2xl shadow-xl overflow-hidden sticky top-8">
-            <div class="bg-gradient-to-r from-green-600 to-teal-600 text-white p-6">
-              <h2 class="text-2xl font-bold">OPS Login Status</h2>
-              <p class="text-sm opacity-90 mt-1">Real-time availability</p>
+          <div class="bg-white rounded-xl shadow-xl overflow-hidden sticky top-4">
+            <div class="bg-gradient-to-r from-green-600 to-teal-600 text-white p-4">
+              <h2 class="text-xl font-bold">OPS Login Status</h2>
+              <p class="text-xs opacity-90 mt-1">Real-time availability</p>
             </div>
-            <div id="employeeStatusContainer" class="p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+            <div id="employeeStatusContainer" class="p-3 max-h-[calc(100vh-140px)] overflow-y-auto">
               <!-- Employee status will be populated here -->
             </div>
           </div>
@@ -270,6 +354,15 @@
   
   let allData = null;
 
+  // Slideshow variables
+  const SLIDE_DURATION = 20000; // 20 seconds
+  let currentSlide = 0;
+  const totalSlides = 3;
+  let slideInterval = null;
+  let progressInterval = null;
+  let isPaused = false;
+  let progressValue = 0;
+
   // Color mapping (same order as zones)
   const colorMapping = [
     { color: '#3B82F6', bgColor: 'bg-blue-500' },
@@ -277,6 +370,84 @@
     { color: '#F59E0B', bgColor: 'bg-amber-500' },
     { color: '#F97316', bgColor: 'bg-orange-500' }
   ];
+
+  // Initialize slideshow
+  function initSlideshow() {
+    const indicatorsContainer = document.getElementById('slideIndicators');
+    indicatorsContainer.innerHTML = '';
+    
+    for (let i = 0; i < totalSlides; i++) {
+      const dot = document.createElement('div');
+      dot.className = `slide-dot ${i === 0 ? 'active' : ''}`;
+      dot.addEventListener('click', () => goToSlide(i));
+      indicatorsContainer.appendChild(dot);
+    }
+
+    document.getElementById('pauseSlide').addEventListener('click', togglePause);
+    startSlideshow();
+  }
+
+  function startSlideshow() {
+    if (slideInterval) clearInterval(slideInterval);
+    if (progressInterval) clearInterval(progressInterval);
+    
+    progressValue = 0;
+    updateProgressBar();
+    
+    progressInterval = setInterval(() => {
+      if (!isPaused) {
+        progressValue += 100 / (SLIDE_DURATION / 100);
+        updateProgressBar();
+      }
+    }, 100);
+
+    slideInterval = setInterval(() => {
+      if (!isPaused) {
+        nextSlide();
+      }
+    }, SLIDE_DURATION);
+  }
+
+  function updateProgressBar() {
+    document.getElementById('slideProgress').style.width = `${progressValue}%`;
+  }
+
+  function goToSlide(index) {
+    if (index === currentSlide) return;
+    
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.slide-dot');
+    
+    slides[currentSlide].classList.remove('active');
+    slides[currentSlide].classList.add('exit');
+    dots[currentSlide].classList.remove('active');
+    
+    currentSlide = index;
+    slides[currentSlide].classList.remove('exit');
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+    
+    progressValue = 0;
+    updateProgressBar();
+    
+    if (slideInterval) clearInterval(slideInterval);
+    slideInterval = setInterval(() => {
+      if (!isPaused) {
+        nextSlide();
+      }
+    }, SLIDE_DURATION);
+  }
+
+  function nextSlide() {
+    const next = (currentSlide + 1) % totalSlides;
+    goToSlide(next);
+  }
+
+  function togglePause() {
+    isPaused = !isPaused;
+    document.getElementById('pauseIcon').classList.toggle('hidden', isPaused);
+    document.getElementById('playIcon').classList.toggle('hidden', !isPaused);
+  }
 
   function renderEmployeeStatus(loginStatus) {
     const container = document.getElementById('employeeStatusContainer');
@@ -365,6 +536,8 @@
       const totalMissedUpdateMonthly = monthlyEnriched.reduce((s, z) => s + (Number(z.missedUpdate) || 0), 0);
       const totalWrongPunchMonthly = monthlyEnriched.reduce((s, z) => s + (Number(z.wrongPunch) || 0), 0);
       const totalIncorrectStageMonthly = monthlyEnriched.reduce((s, z) => s + (Number(z.incorrectStage) || 0), 0);
+      const totalInquiriesMonthly = monthlyEnriched.reduce((s, z) => s + (Number(z.totalInquiries) || 0), 0);
+      const totalWrongReplyMonthly = monthlyEnriched.reduce((s, z) => s + (Number(z.wrongReply) || 0), 0);
 
       // Calculate summary metrics for daily
       const totalTicketsToday = dailyEnriched.reduce((s, z) => s + (Number(z.totalCount) || 0), 0);
@@ -373,6 +546,8 @@
       const totalMissedUpdateToday = dailyEnriched.reduce((s, z) => s + (Number(z.missedUpdate) || 0), 0);
       const totalWrongPunchToday = dailyEnriched.reduce((s, z) => s + (Number(z.wrongPunch) || 0), 0);
       const totalIncorrectStageToday = dailyEnriched.reduce((s, z) => s + (Number(z.incorrectStage) || 0), 0);
+      const totalInquiriesToday = dailyEnriched.reduce((s, z) => s + (Number(z.totalInquiries) || 0), 0);
+      const totalWrongReplyToday = dailyEnriched.reduce((s, z) => s + (Number(z.wrongReply) || 0), 0);
 
       // Fill summary cards
       document.getElementById('totalTicketsMonthly').textContent = totalTicketsMonthly;
@@ -389,6 +564,9 @@
       document.getElementById('totalWrongPunchToday').textContent = totalWrongPunchToday;
       document.getElementById('totalIncorrectStageToday').textContent = totalIncorrectStageToday;
 
+      // Update last update time
+      document.getElementById('lastUpdateTime').textContent = `Last updated: ${new Date().toLocaleString()}`;
+
       // Zone cards
       const zoneCards = document.getElementById('zoneCards');
       zoneCards.innerHTML = '';
@@ -396,11 +574,11 @@
         const zoneDaily = dailyEnriched[idx] || {};
         
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-xl shadow-lg p-6 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-t-4';
+        card.className = 'bg-white rounded-xl shadow-lg p-5 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-t-4';
         card.style.borderTopColor = zoneMonthly.color;
         
         const totalCountMonthly = Number(zoneMonthly.totalCount) || 0;
-        const totalInquiriesMonthly = Number(zoneMonthly.totalInquiries) || 0;
+        const totalInquiriesMonthlyZone = Number(zoneMonthly.totalInquiries) || 0;
         
         const missedReplyPercentMonthly = totalCountMonthly ? ((Number(zoneMonthly.missedReply) || 0) / totalCountMonthly * 100).toFixed(1) : '0.0';
         
@@ -411,27 +589,27 @@
         const todayCount = Number(zoneDaily.totalCount) || 0;
         
         card.innerHTML = `
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-bold text-gray-800">${escapeHtml(zoneMonthly.zone)}</h3>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-bold text-gray-800">${escapeHtml(zoneMonthly.zone)}</h3>
             <div class="flex gap-2 items-center">
               <div class="text-center">
-                <div class="text-xs text-gray-500">Today</div>
-                <div class="${zoneMonthly.bgColor} text-white px-3 py-1 rounded-full text-lg font-bold">${todayCount}</div>
+                <div class="text-[9px] text-gray-500">Today</div>
+                <div class="${zoneMonthly.bgColor} text-white px-3 py-1 rounded-full text-sm font-bold">${todayCount}</div>
               </div>
               <div class="text-center">
-                <div class="text-xs text-gray-500">Monthly</div>
-                <div class="${zoneMonthly.bgColor} text-white px-3 py-1 rounded-full text-lg font-bold">${totalCountMonthly}</div>
+                <div class="text-[9px] text-gray-500">Monthly</div>
+                <div class="${zoneMonthly.bgColor} text-white px-3 py-1 rounded-full text-sm font-bold">${totalCountMonthly}</div>
               </div>
             </div>
           </div>
-          <div class="space-y-2 text-sm mb-3">
+          <div class="space-y-1 text-sm mb-3">
             <div class="flex justify-between">
               <span class="text-gray-600">Total Inquiries:</span>
-              <span class="font-semibold">${totalInquiriesMonthly}</span>
+              <span class="font-semibold">${totalInquiriesMonthlyZone}</span>
             </div>
             <div class="flex justify-between">
               <span class="text-gray-600">Assignee:</span>
-              <span class="font-semibold text-xs">${escapeHtml(zoneMonthly.assignee)}</span>
+              <span class="font-semibold text-sm truncate ml-2">${escapeHtml(zoneMonthly.assignee)}</span>
             </div>
           </div>
           <div class="space-y-2">
@@ -440,8 +618,8 @@
                 <span class="text-xs font-medium text-gray-600">Missed Reply</span>
                 <span class="text-xs font-bold text-gray-700">${missedReplyPercentMonthly}%</span>
               </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div class="${zoneMonthly.bgColor} h-2 rounded-full transition-all duration-300" style="width:${Math.min(missedReplyPercentMonthly, 100)}%"></div>
+              <div class="w-full bg-gray-200 rounded-full h-1.5">
+                <div class="${zoneMonthly.bgColor} h-1.5 rounded-full transition-all duration-300" style="width:${Math.min(missedReplyPercentMonthly, 100)}%"></div>
               </div>
             </div>
             <div>
@@ -449,8 +627,8 @@
                 <span class="text-xs font-medium text-gray-600">Overall Missed</span>
                 <span class="text-xs font-bold text-gray-700">${overallMissedPercentMonthly}%</span>
               </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div class="${zoneMonthly.bgColor} h-2 rounded-full transition-all duration-300" style="width:${Math.min(overallMissedPercentMonthly, 100)}%"></div>
+              <div class="w-full bg-gray-200 rounded-full h-1.5">
+                <div class="${zoneMonthly.bgColor} h-1.5 rounded-full transition-all duration-300" style="width:${Math.min(overallMissedPercentMonthly, 100)}%"></div>
               </div>
             </div>
           </div>
@@ -459,36 +637,54 @@
         zoneCards.appendChild(card);
       });
 
-      // Monthly table body
+      // Monthly table body with totals
       const tableBody = document.getElementById('tableBody');
       tableBody.innerHTML = '';
       monthlyEnriched.forEach((zoneMonthly, idx) => {
         const tr = document.createElement('tr');
         tr.className = `${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition cursor-pointer`;
         tr.innerHTML = `
-          <td class="px-6 py-4">
+          <td class="px-4 py-3">
             <div class="flex items-center gap-2">
               <div class="w-3 h-3 rounded-full ${zoneMonthly.bgColor}"></div>
               <span class="font-semibold text-gray-800">${escapeHtml(zoneMonthly.zone)}</span>
             </div>
           </td>
-          <td class="px-6 py-4 text-gray-700">${escapeHtml(zoneMonthly.assignee)}</td>
-          <td class="px-6 py-4 text-center font-semibold">${Number(zoneMonthly.totalInquiries) || 0}</td>
-          <td class="px-6 py-4 text-center">
+          <td class="px-4 py-3 text-gray-700">${escapeHtml(zoneMonthly.assignee)}</td>
+          <td class="px-4 py-3 text-center font-semibold">${Number(zoneMonthly.totalInquiries) || 0}</td>
+          <td class="px-4 py-3 text-center">
             <span class="${zoneMonthly.bgColor} text-white px-3 py-1 rounded-full font-bold">${Number(zoneMonthly.totalCount) || 0}</span>
           </td>
-          <td class="px-6 py-4 text-center text-blue-600 font-semibold">${Number(zoneMonthly.missedReply) || 0}</td>
-          <td class="px-6 py-4 text-center text-red-600 font-semibold">${Number(zoneMonthly.missedOrder) || 0}</td>
-          <td class="px-6 py-4 text-center text-amber-600 font-semibold">${Number(zoneMonthly.missedUpdate) || 0}</td>
-          <td class="px-6 py-4 text-center text-green-600 font-semibold">${Number(zoneMonthly.wrongReply) || 0}</td>
-          <td class="px-6 py-4 text-center text-red-500 font-semibold">${Number(zoneMonthly.wrongPunch) || 0}</td>
-          <td class="px-6 py-4 text-center text-indigo-600 font-semibold">${Number(zoneMonthly.incorrectStage) || 0}</td>
+          <td class="px-4 py-3 text-center text-blue-600 font-semibold">${Number(zoneMonthly.missedReply) || 0}</td>
+          <td class="px-4 py-3 text-center text-red-600 font-semibold">${Number(zoneMonthly.missedOrder) || 0}</td>
+          <td class="px-4 py-3 text-center text-amber-600 font-semibold">${Number(zoneMonthly.missedUpdate) || 0}</td>
+          <td class="px-4 py-3 text-center text-green-600 font-semibold">${Number(zoneMonthly.wrongReply) || 0}</td>
+          <td class="px-4 py-3 text-center text-red-500 font-semibold">${Number(zoneMonthly.wrongPunch) || 0}</td>
+          <td class="px-4 py-3 text-center text-indigo-600 font-semibold">${Number(zoneMonthly.incorrectStage) || 0}</td>
         `;
         tr.addEventListener('click', () => openModal(zoneMonthly, dailyEnriched[idx] || {}));
         tableBody.appendChild(tr);
       });
 
-      // Daily table body
+      // Monthly table footer (totals)
+      const monthlyTableFoot = document.getElementById('monthlyTableFoot');
+      monthlyTableFoot.innerHTML = `
+        <tr class="border-t-2 border-purple-300">
+          <td class="px-4 py-3 font-bold text-gray-800" colspan="2">TOTAL</td>
+          <td class="px-4 py-3 text-center font-bold text-gray-800">${totalInquiriesMonthly}</td>
+          <td class="px-4 py-3 text-center">
+            <span class="bg-purple-600 text-white px-3 py-1 rounded-full font-bold">${totalTicketsMonthly}</span>
+          </td>
+          <td class="px-4 py-3 text-center text-blue-600 font-bold">${totalMissedReplyMonthly}</td>
+          <td class="px-4 py-3 text-center text-red-600 font-bold">${totalMissedOrderMonthly}</td>
+          <td class="px-4 py-3 text-center text-amber-600 font-bold">${totalMissedUpdateMonthly}</td>
+          <td class="px-4 py-3 text-center text-green-600 font-bold">${totalWrongReplyMonthly}</td>
+          <td class="px-4 py-3 text-center text-red-500 font-bold">${totalWrongPunchMonthly}</td>
+          <td class="px-4 py-3 text-center text-indigo-600 font-bold">${totalIncorrectStageMonthly}</td>
+        </tr>
+      `;
+
+      // Daily table body with totals
       const dailyTableBody = document.getElementById('dailyTableBody');
       dailyTableBody.innerHTML = '';
 
@@ -497,31 +693,49 @@
         tr.className = `${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-green-50 transition`;
 
         tr.innerHTML = `
-          <td class="px-6 py-4">
+          <td class="px-4 py-3">
             <div class="flex items-center gap-2">
               <div class="w-3 h-3 rounded-full ${zoneDaily.bgColor}"></div>
               <span class="font-semibold text-gray-800">${escapeHtml(zoneDaily.zone)}</span>
             </div>
           </td>
-          <td class="px-6 py-4 text-gray-700">${escapeHtml(zoneDaily.assignee || '')}</td>
-          <td class="px-6 py-4 text-center font-semibold">${Number(zoneDaily.totalInquiries) || 0}</td>
-          <td class="px-6 py-4 text-center">
+          <td class="px-4 py-3 text-gray-700">${escapeHtml(zoneDaily.assignee || '')}</td>
+          <td class="px-4 py-3 text-center font-semibold">${Number(zoneDaily.totalInquiries) || 0}</td>
+          <td class="px-4 py-3 text-center">
             <span class="${zoneDaily.bgColor} text-white px-3 py-1 rounded-full font-bold">
               ${Number(zoneDaily.totalCount) || 0}
             </span>
           </td>
-          <td class="px-6 py-4 text-center text-blue-600 font-semibold">${Number(zoneDaily.missedReply) || 0}</td>
-          <td class="px-6 py-4 text-center text-red-600 font-semibold">${Number(zoneDaily.missedOrder) || 0}</td>
-          <td class="px-6 py-4 text-center text-amber-600 font-semibold">${Number(zoneDaily.missedUpdate) || 0}</td>
-          <td class="px-6 py-4 text-center text-green-600 font-semibold">${Number(zoneDaily.wrongReply) || 0}</td>
-          <td class="px-6 py-4 text-center text-red-500 font-semibold">${Number(zoneDaily.wrongPunch) || 0}</td>
-          <td class="px-6 py-4 text-center text-indigo-600 font-semibold">${Number(zoneDaily.incorrectStage) || 0}</td>
+          <td class="px-4 py-3 text-center text-blue-600 font-semibold">${Number(zoneDaily.missedReply) || 0}</td>
+          <td class="px-4 py-3 text-center text-red-600 font-semibold">${Number(zoneDaily.missedOrder) || 0}</td>
+          <td class="px-4 py-3 text-center text-amber-600 font-semibold">${Number(zoneDaily.missedUpdate) || 0}</td>
+          <td class="px-4 py-3 text-center text-green-600 font-semibold">${Number(zoneDaily.wrongReply) || 0}</td>
+          <td class="px-4 py-3 text-center text-red-500 font-semibold">${Number(zoneDaily.wrongPunch) || 0}</td>
+          <td class="px-4 py-3 text-center text-indigo-600 font-semibold">${Number(zoneDaily.incorrectStage) || 0}</td>
         `;
 
         dailyTableBody.appendChild(tr);
       });
 
-      // ========== ZONE CHART (Normal grouped bar - NO stacking) ==========
+      // Daily table footer (totals)
+      const dailyTableFoot = document.getElementById('dailyTableFoot');
+      dailyTableFoot.innerHTML = `
+        <tr class="border-t-2 border-teal-300">
+          <td class="px-4 py-3 font-bold text-gray-800" colspan="2">TOTAL</td>
+          <td class="px-4 py-3 text-center font-bold text-gray-800">${totalInquiriesToday}</td>
+          <td class="px-4 py-3 text-center">
+            <span class="bg-teal-600 text-white px-3 py-1 rounded-full font-bold">${totalTicketsToday}</span>
+          </td>
+          <td class="px-4 py-3 text-center text-blue-600 font-bold">${totalMissedReplyToday}</td>
+          <td class="px-4 py-3 text-center text-red-600 font-bold">${totalMissedOrderToday}</td>
+          <td class="px-4 py-3 text-center text-amber-600 font-bold">${totalMissedUpdateToday}</td>
+          <td class="px-4 py-3 text-center text-green-600 font-bold">${totalWrongReplyToday}</td>
+          <td class="px-4 py-3 text-center text-red-500 font-bold">${totalWrongPunchToday}</td>
+          <td class="px-4 py-3 text-center text-indigo-600 font-bold">${totalIncorrectStageToday}</td>
+        </tr>
+      `;
+
+      // ========== ZONE CHART ==========
       const chartLabels = monthlyEnriched.map(z => z.zone);
       const missedReplyData = monthlyEnriched.map(z => Number(z.missedReply) || 0);
       const missedOrderData = monthlyEnriched.map(z => Number(z.missedOrder) || 0);
@@ -540,12 +754,12 @@
         data: {
           labels: chartLabels,
           datasets: [
-            { label: 'Missed Reply', data: missedReplyData, backgroundColor: '#3B82F6', borderRadius: 6 },
-            { label: 'Missed Order', data: missedOrderData, backgroundColor: '#EF4444', borderRadius: 6 },
-            { label: 'Missed Update', data: missedUpdateData, backgroundColor: '#F59E0B', borderRadius: 6 },
-            { label: 'Wrong Reply', data: wrongReplyData, backgroundColor: '#10B981', borderRadius: 6 },
-            { label: 'Wrong Punch', data: wrongPunchData, backgroundColor: '#EC4899', borderRadius: 6 },
-            { label: 'Incorrect Stage', data: incorrectStageData, backgroundColor: '#6366F1', borderRadius: 6 }
+            { label: 'Missed Reply', data: missedReplyData, backgroundColor: '#3B82F6', borderRadius: 4 },
+            { label: 'Missed Order', data: missedOrderData, backgroundColor: '#EF4444', borderRadius: 4 },
+            { label: 'Missed Update', data: missedUpdateData, backgroundColor: '#F59E0B', borderRadius: 4 },
+            { label: 'Wrong Reply', data: wrongReplyData, backgroundColor: '#10B981', borderRadius: 4 },
+            { label: 'Wrong Punch', data: wrongPunchData, backgroundColor: '#EC4899', borderRadius: 4 },
+            { label: 'Incorrect Stage', data: incorrectStageData, backgroundColor: '#6366F1', borderRadius: 4 }
           ]
         },
         options: {
@@ -553,140 +767,146 @@
           maintainAspectRatio: false,
           plugins: {
             tooltip: { mode: 'index', intersect: false },
-            legend: { position: 'bottom' },
+            legend: { 
+              position: 'bottom',
+              labels: { 
+                font: { size: 11 },
+                boxWidth: 12,
+                padding: 10
+              }
+            },
             datalabels: {
-              display: false // No data labels for zone chart
+              display: false
             }
           },
           scales: {
-            x: { stacked: false, grid: { display: false } },
-            y: { beginAtZero: true, grid: { color: '#e5e7eb' } }
+            x: { 
+              stacked: false, 
+              grid: { display: false },
+              ticks: { font: { size: 11 } }
+            },
+            y: { 
+              beginAtZero: true, 
+              grid: { color: '#e5e7eb' },
+              ticks: { font: { size: 11 } }
+            }
           }
         }
       });
 
-     // ========== EMPLOYEE CHART (STACKED HORIZONTAL BAR with Data Labels) ==========
-if (employeeWiseData && employeeWiseData.length > 0) {
-  console.log("Rendering stacked horizontal employee chart with:", employeeWiseData);
+      // ========== EMPLOYEE CHART ==========
+      if (employeeWiseData && employeeWiseData.length > 0) {
+        const sortedData = [...employeeWiseData].sort((a, b) => 
+          ((b.wrongPunch || 0) + (b.incorrectStage || 0)) - ((a.wrongPunch || 0) + (a.incorrectStage || 0))
+        );
 
-  // Sort by total errors (descending)
-  const sortedData = [...employeeWiseData].sort((a, b) => 
-    ((b.wrongPunch || 0) + (b.incorrectStage || 0)) - ((a.wrongPunch || 0) + (a.incorrectStage || 0))
-  );
+        const empLabels = sortedData.map(e => e.employee);
+        const wrongPunchValues = sortedData.map(e => e.wrongPunch || 0);
+        const incorrectStageValues = sortedData.map(e => e.incorrectStage || 0);
 
-  const empLabels = sortedData.map(e => e.employee);
-  const wrongPunchValues = sortedData.map(e => e.wrongPunch || 0);
-  const incorrectStageValues = sortedData.map(e => e.incorrectStage || 0);
+        if (window._employeeChart) window._employeeChart.destroy();
 
-  // Adjust chart height based on number of employees (for horizontal chart)
-  const chartContainer = document.getElementById('employeeChart').parentElement;
-  const dynamicHeight = Math.max(420, sortedData.length * 40);
-  chartContainer.style.height = dynamicHeight + 'px';
-
-  if (window._employeeChart) window._employeeChart.destroy();
-
-  const empCtx = document.getElementById('employeeChart').getContext('2d');
-  window._employeeChart = new Chart(empCtx, {
-    type: 'bar',
-    data: {
-      labels: empLabels,
-      datasets: [
-        {
-          label: 'Wrong Punch',
-          data: wrongPunchValues,
-          backgroundColor: '#FF1A1A',
-          borderRadius: 6,
-        },
-        {
-          label: 'Incorrect Stage',
-          data: incorrectStageValues,
-          backgroundColor: '#F59E0B',
-          borderRadius: 6,
-        }
-      ]
-    },
-    options: {
-      indexAxis: 'y',  // THIS MAKES IT HORIZONTAL
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { 
-          position: 'bottom',
-          labels: { 
-            font: { size: 12, weight: 'bold' },
-            usePointStyle: true,
-            padding: 20
-          } 
-        },
-        tooltip: { 
-          mode: 'index',
-          intersect: false,
-          backgroundColor: '#1f2937', 
-          titleColor: '#fff', 
-          bodyColor: '#fff',
-          callbacks: {
-            afterBody: function(context) {
-              const dataIndex = context[0].dataIndex;
-              const total = wrongPunchValues[dataIndex] + incorrectStageValues[dataIndex];
-              return `\nTotal: ${total}`;
+        const empCtx = document.getElementById('employeeChart').getContext('2d');
+        window._employeeChart = new Chart(empCtx, {
+          type: 'bar',
+          data: {
+            labels: empLabels,
+            datasets: [
+              {
+                label: 'Wrong Punch',
+                data: wrongPunchValues,
+                backgroundColor: '#FF1A1A',
+                borderRadius: 4,
+              },
+              {
+                label: 'Incorrect Stage',
+                data: incorrectStageValues,
+                backgroundColor: '#F59E0B',
+                borderRadius: 4,
+              }
+            ]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { 
+                position: 'bottom',
+                labels: { 
+                  font: { size: 11 },
+                  boxWidth: 12,
+                  padding: 10
+                } 
+              },
+              tooltip: { 
+                mode: 'index',
+                intersect: false,
+                backgroundColor: '#1f2937', 
+                titleColor: '#fff', 
+                bodyColor: '#fff',
+                callbacks: {
+                  afterBody: function(context) {
+                    const dataIndex = context[0].dataIndex;
+                    const total = wrongPunchValues[dataIndex] + incorrectStageValues[dataIndex];
+                    return `\nTotal: ${total}`;
+                  }
+                }
+              },
+              datalabels: {
+                display: function(context) {
+                  return context.dataset.data[context.dataIndex] > 0;
+                },
+                color: '#ffffff',
+                font: {
+                  weight: 'bold',
+                  size: 10
+                },
+                anchor: 'center',
+                align: 'center',
+                formatter: function(value) {
+                  return value > 0 ? value : '';
+                }
+              }
+            },
+            scales: {
+              x: { 
+                stacked: true,
+                beginAtZero: true, 
+                grid: { color: '#e5e7eb' },
+                ticks: { 
+                  stepSize: 1,
+                  font: { size: 11 } 
+                }
+              },
+               y: { 
+				stacked: true,
+				grid: { display: false },
+				ticks: {
+				font: { 
+              size: 11,
+              weight: 'bold'  // Makes the text BOLD
+				},
+            color: '#000000'  // Makes the text BLACK
+				}
+              }
             }
           }
-        },
-        datalabels: {
-          display: function(context) {
-            return context.dataset.data[context.dataIndex] > 0;
-          },
-          color: '#ffffff',
-          font: {
-            weight: 'bold',
-            size: 11
-          },
-          anchor: 'center',
-          align: 'center',
-          formatter: function(value) {
-            return value > 0 ? value : '';
-          }
-        }
-      },
-      scales: {
-        x: { 
-          stacked: true,
-          beginAtZero: true, 
-          grid: { color: '#e5e7eb' },
-          ticks: { 
-            stepSize: 1,
-            font: { size: 12 } 
-          },
-          title: {
-            display: true,
-            text: 'Number of Errors',
-            font: { size: 12, weight: 'bold' }
-          }
-        },
-        y: { 
-          stacked: true,
-          grid: { display: false },
-          ticks: {
-            font: { size: 11 }
-          }
-        }
+        });
+      } else {
+        const empCtx = document.getElementById('employeeChart').getContext('2d');
+        if (window._employeeChart) window._employeeChart.destroy();
+        empCtx.font = '14px Arial';
+        empCtx.fillStyle = '#6B7280';
+        empCtx.textAlign = 'center';
+        empCtx.fillText('No employee error data available', empCtx.canvas.width / 2, empCtx.canvas.height / 2);
       }
-    }
-  });
-} else {
-  // No employee data
-  const empCtx = document.getElementById('employeeChart').getContext('2d');
-  if (window._employeeChart) window._employeeChart.destroy();
-  empCtx.font = '16px Arial';
-  empCtx.fillStyle = '#6B7280';
-  empCtx.textAlign = 'center';
-  empCtx.fillText('No employee error data available', empCtx.canvas.width / 2, empCtx.canvas.height / 2);
-}
 
-      // Show dashboard
+      // Show dashboard and initialize slideshow
       document.getElementById('loading').classList.add('hidden');
       document.getElementById('mainContent').classList.remove('hidden');
-      document.getElementById('subtitle').textContent = `Last updated: ${new Date().toLocaleString()}`;
+      
+      initSlideshow();
 
     } catch (err) {
       console.error("Render error:", err);
