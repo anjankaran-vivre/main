@@ -310,10 +310,51 @@
               </div>
             </div>
 
-          </div>
-
+            <!-- Slide 4: Monthly Ticket Comparison Line Chart - IMPROVED! -->
+		<div id="slide4" class="slide">
+		<div class="bg-white rounded-xl shadow-xl p-6">
+		<div class="flex items-center justify-between mb-4">
+		<div>
+        <h2 class="text-xl font-bold text-gray-800">Monthly Ticket Comparison</h2>
+        <p class="text-xs text-gray-500 mt-1">Previous Month vs Current Month (Day-wise)</p>
+		</div>
+		<div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-1 rounded bg-orange-500"></div>
+          <span class="text-sm font-medium text-gray-600">November</span>
         </div>
-
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-1 rounded bg-blue-500"></div>
+          <span class="text-sm font-medium text-gray-600">December</span>
+        </div>
+		</div>
+		</div>
+		<div class="w-full" style="height:300px;">
+      <canvas id="monthlyComparisonChart"></canvas>
+		</div>
+		<!-- Summary Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+      <div class="bg-orange-50 p-3 rounded-lg border-l-4 border-orange-500">
+        <div class="text-xs text-gray-500">November Total</div>
+        <div id="novemberTotal" class="text-xl font-bold text-orange-600">0</div>
+      </div>
+      <div class="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500">
+        <div class="text-xs text-gray-500">December Total</div>
+        <div id="decemberTotal" class="text-xl font-bold text-blue-600">0</div>
+      </div>
+      <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-gray-400">
+        <div class="text-xs text-gray-500">Difference (Comparable Days)</div>
+        <div id="ticketDifference" class="text-xl font-bold text-gray-600">-</div>
+      </div>
+      <div class="bg-purple-50 p-3 rounded-lg border-l-4 border-purple-500">
+        <div class="text-xs text-gray-500">Change %</div>
+        <div id="ticketChangePercent" class="text-xl font-bold text-purple-600">-</div>
+      </div>
+    </div>
+	</div>
+		</div>
+ </div>
+  </div>
         <!-- Right Section - Employee Status (3 columns) -->
         <div class="lg:col-span-3">
           <div class="bg-white rounded-xl shadow-xl overflow-hidden sticky top-4">
@@ -323,12 +364,14 @@
             </div>
             <div id="employeeStatusContainer" class="p-3 max-h-[calc(100vh-140px)] overflow-y-auto">
               <!-- Employee status will be populated here -->
-            </div>
+           
           </div>
         </div>
       </div>
     </div>
-  </div>
+	</div>
+	</div>
+ 
 
   <!-- Modal -->
   <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
@@ -350,14 +393,14 @@
   Chart.register(ChartDataLabels);
 
   // Google Apps Script Web App URL
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxYp45otGDikNJWI-23yp9LDM6l6hFkBg7baio70LVA4CUoGRx53lb0Jbaa5E4WqD57/exec';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXg1xHVXWXyxM2UB7dMGVwRxEgBRBIyeWcGI6m1rvdUt8bGwXGPUfOaxZCiGQBtlfc/exec';
   
   let allData = null;
 
-  // Slideshow variables
+  // Slideshow variables - Updated to 4 slides
   const SLIDE_DURATION = 20000; // 20 seconds
   let currentSlide = 0;
-  const totalSlides = 3;
+  const totalSlides = 4; // Changed from 3 to 4
   let slideInterval = null;
   let progressInterval = null;
   let isPaused = false;
@@ -506,9 +549,222 @@
     container.innerHTML = html;
   }
 
-  function renderDashboard(monthlyData, dailyData, employeeWiseData = []) {
+  // NEW: Render Monthly Comparison Chart
+  // NEW: Render Monthly Comparison Chart - FIXED for blank data
+function renderMonthlyComparisonChart(monthlyTicketComparison) {
+  if (!monthlyTicketComparison || monthlyTicketComparison.length === 0) {
+    console.log('No monthly comparison data available');
+    const ctx = document.getElementById('monthlyComparisonChart').getContext('2d');
+    if (window._monthlyComparisonChart) window._monthlyComparisonChart.destroy();
+    ctx.font = '14px Arial';
+    ctx.fillStyle = '#6B7280';
+    ctx.textAlign = 'center';
+    ctx.fillText('No comparison data available', ctx.canvas.width / 2, ctx.canvas.height / 2);
+    return;
+  }
+
+  // Filter out rows where both months have no data
+  const validData = monthlyTicketComparison.filter(item => {
+    const hasNov = item.novemberTickets !== null && item.novemberTickets !== "" && item.novemberTickets !== undefined;
+    const hasDec = item.decemberTickets !== null && item.decemberTickets !== "" && item.decemberTickets !== undefined;
+    return hasNov || hasDec;
+  });
+
+  if (validData.length === 0) {
+    console.log('No valid comparison data after filtering');
+    return;
+  }
+
+  const labels = validData.map(item => item.day);
+  
+  // Keep null values for missing data points (Chart.js will skip them)
+  const novemberData = validData.map(item => {
+    if (item.novemberTickets === null || item.novemberTickets === "" || item.novemberTickets === undefined) {
+      return null;
+    }
+    return Number(item.novemberTickets) || 0;
+  });
+  
+  const decemberData = validData.map(item => {
+    if (item.decemberTickets === null || item.decemberTickets === "" || item.decemberTickets === undefined) {
+      return null;
+    }
+    return Number(item.decemberTickets) || 0;
+  });
+
+  // Calculate totals (only for non-null values)
+  const novemberTotal = novemberData.reduce((sum, val) => sum + (val || 0), 0);
+  const decemberTotal = decemberData.reduce((sum, val) => sum + (val || 0), 0);
+  
+  // Count actual data points for each month
+  const novemberDays = novemberData.filter(val => val !== null).length;
+  const decemberDays = decemberData.filter(val => val !== null).length;
+  
+  // Calculate difference and percentage based on comparable days
+  const comparableDays = Math.min(novemberDays, decemberDays);
+  
+  // Get totals for comparable days only
+  let novComparable = 0;
+  let decComparable = 0;
+  for (let i = 0; i < comparableDays; i++) {
+    novComparable += novemberData[i] || 0;
+    decComparable += decemberData[i] || 0;
+  }
+  
+  const difference = decComparable - novComparable;
+  const changePercent = novComparable > 0 ? ((difference / novComparable) * 100).toFixed(1) : 0;
+
+  // Update summary stats
+  document.getElementById('novemberTotal').textContent = novemberTotal.toLocaleString();
+  document.getElementById('decemberTotal').innerHTML = `${decemberTotal.toLocaleString()} <span class="text-xs text-gray-500">(${decemberDays} days)</span>`;
+  
+  const diffElement = document.getElementById('ticketDifference');
+  if (comparableDays > 0) {
+    diffElement.innerHTML = `${difference >= 0 ? '+' : ''}${difference} <span class="text-xs text-gray-500">(${comparableDays}d)</span>`;
+    diffElement.className = `text-xl font-bold ${difference > 0 ? 'text-red-600' : difference < 0 ? 'text-green-600' : 'text-gray-600'}`;
+  } else {
+    diffElement.textContent = '-';
+    diffElement.className = 'text-xl font-bold text-gray-600';
+  }
+  
+  const percentElement = document.getElementById('ticketChangePercent');
+  if (comparableDays > 0 && novComparable > 0) {
+    percentElement.textContent = (changePercent >= 0 ? '+' : '') + changePercent + '%';
+    percentElement.className = `text-xl font-bold ${changePercent > 0 ? 'text-red-600' : changePercent < 0 ? 'text-green-600' : 'text-gray-600'}`;
+  } else {
+    percentElement.textContent = '-';
+    percentElement.className = 'text-xl font-bold text-gray-600';
+  }
+
+  // Destroy existing chart if exists
+  if (window._monthlyComparisonChart) {
+    window._monthlyComparisonChart.destroy();
+  }
+
+  const ctx = document.getElementById('monthlyComparisonChart').getContext('2d');
+  window._monthlyComparisonChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'November',
+          data: novemberData,
+          borderColor: '#F97316',
+          backgroundColor: 'rgba(249, 115, 22, 0.1)',
+          borderWidth: 3,
+          tension: 0.3,
+          fill: true,
+          pointBackgroundColor: '#F97316',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          spanGaps: false  // Don't connect across null values
+        },
+        {
+          label: 'December',
+          data: decemberData,
+          borderColor: '#3B82F6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          borderWidth: 3,
+          tension: 0.3,
+          fill: true,
+          pointBackgroundColor: '#3B82F6',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          spanGaps: false  // Don't connect across null values
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: '#1f2937',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          padding: 12,
+          displayColors: true,
+          filter: function(tooltipItem) {
+            // Only show tooltip for non-null values
+            return tooltipItem.raw !== null;
+          },
+          callbacks: {
+            title: function(context) {
+              return 'Day ' + context[0].label;
+            },
+            label: function(context) {
+              if (context.raw === null) {
+                return context.dataset.label + ': No data';
+              }
+              return context.dataset.label + ': ' + context.raw;
+            },
+            afterBody: function(context) {
+              const novVal = context.find(c => c.dataset.label === 'November')?.raw;
+              const decVal = context.find(c => c.dataset.label === 'December')?.raw;
+              
+              if (novVal !== null && decVal !== null && novVal !== undefined && decVal !== undefined) {
+                const diff = decVal - novVal;
+                return `\nDifference: ${diff >= 0 ? '+' : ''}${diff}`;
+              }
+              return '';
+            }
+          }
+        },
+        datalabels: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Day of Month',
+            font: { size: 12, weight: 'bold' },
+            color: '#374151'
+          },
+          grid: {
+            display: false
+          },
+          ticks: {
+            font: { size: 10 },
+            maxRotation: 0
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Total Tickets',
+            font: { size: 12, weight: 'bold' },
+            color: '#374151'
+          },
+          beginAtZero: true,
+          grid: {
+            color: '#e5e7eb'
+          },
+          ticks: {
+            font: { size: 11 }
+          }
+        }
+      }
+    }
+  });
+}
+
+  function renderDashboard(monthlyData, dailyData, employeeWiseData = [], monthlyTicketComparison = []) {
     try {
-      console.log("Rendering dashboard with data:", { monthlyData, dailyData, employeeWiseData });
+      console.log("Rendering dashboard with data:", { monthlyData, dailyData, employeeWiseData, monthlyTicketComparison });
       
       if (!monthlyData || monthlyData.length === 0) {
         document.getElementById('loading').innerHTML = '<div class="text-center text-gray-600">No data available.</div>';
@@ -880,15 +1136,15 @@
                 }
               },
                y: { 
-				stacked: true,
-				grid: { display: false },
-				ticks: {
-				font: { 
+                stacked: true,
+                grid: { display: false },
+                ticks: {
+                font: { 
               size: 11,
-              weight: 'bold'  // Makes the text BOLD
-				},
-            color: '#000000'  // Makes the text BLACK
-				}
+              weight: 'bold'
+                },
+            color: '#000000'
+                }
               }
             }
           }
@@ -901,6 +1157,9 @@
         empCtx.textAlign = 'center';
         empCtx.fillText('No employee error data available', empCtx.canvas.width / 2, empCtx.canvas.height / 2);
       }
+
+      // ========== MONTHLY COMPARISON LINE CHART - NEW! ==========
+      renderMonthlyComparisonChart(monthlyTicketComparison);
 
       // Show dashboard and initialize slideshow
       document.getElementById('loading').classList.add('hidden');
@@ -1131,7 +1390,8 @@
         renderDashboard(
           data.monthlyData, 
           data.dailyData, 
-          data.employeeWiseData || []
+          data.employeeWiseData || [],
+          data.monthlyTicketComparison || []  // Pass the new data
         );
         renderEmployeeStatus(data.loginStatus);
       } else {
