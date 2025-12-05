@@ -845,50 +845,41 @@ function renderMonthlyComparisonChart(monthlyTicketComparison) {
         const todayCount = Number(zoneDaily.totalCount) || 0;
         
         card.innerHTML = `
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-lg font-bold text-gray-800">${escapeHtml(zoneMonthly.zone)}</h3>
-            <div class="flex gap-2 items-center">
-              <div class="text-center">
-                <div class="text-[9px] text-gray-500">Today</div>
-                <div class="${zoneMonthly.bgColor} text-white px-3 py-1 rounded-full text-sm font-bold">${todayCount}</div>
-              </div>
-              <div class="text-center">
-                <div class="text-[9px] text-gray-500">Monthly</div>
-                <div class="${zoneMonthly.bgColor} text-white px-3 py-1 rounded-full text-sm font-bold">${totalCountMonthly}</div>
-              </div>
-            </div>
-          </div>
-          <div class="space-y-1 text-sm mb-3">
-            <div class="flex justify-between">
-              <span class="text-gray-600">Total Inquiries:</span>
-              <span class="font-semibold">${totalInquiriesMonthlyZone}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">Assignee:</span>
-              <span class="font-semibold text-sm truncate ml-2">${escapeHtml(zoneMonthly.assignee)}</span>
-            </div>
-          </div>
-          <div class="space-y-2">
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="text-xs font-medium text-gray-600">Missed Reply</span>
-                <span class="text-xs font-bold text-gray-700">${missedReplyPercentMonthly}%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-1.5">
-                <div class="${zoneMonthly.bgColor} h-1.5 rounded-full transition-all duration-300" style="width:${Math.min(missedReplyPercentMonthly, 100)}%"></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="text-xs font-medium text-gray-600">Overall Missed</span>
-                <span class="text-xs font-bold text-gray-700">${overallMissedPercentMonthly}%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-1.5">
-                <div class="${zoneMonthly.bgColor} h-1.5 rounded-full transition-all duration-300" style="width:${Math.min(overallMissedPercentMonthly, 100)}%"></div>
-              </div>
-            </div>
-          </div>
-        `;
+		  <div class="flex items-center justify-between mb-3">
+			<h3 class="text-lg font-bold text-gray-800">${escapeHtml(zoneMonthly.zone)}</h3>
+			<div class="flex gap-2 items-center">
+			  <div class="text-center">
+				<div class="text-[9px] text-gray-500">Today</div>
+				<div class="${zoneMonthly.bgColor} text-white px-3 py-1 rounded-full text-sm font-bold">${todayCount}</div>
+			  </div>
+			  <div class="text-center">
+				<div class="text-[9px] text-gray-500">Monthly</div>
+				<div class="${zoneMonthly.bgColor} text-white px-3 py-1 rounded-full text-sm font-bold">${totalCountMonthly}</div>
+			  </div>
+			</div>
+		  </div>
+		  <div class="space-y-1 text-sm mb-3">
+			<div class="flex justify-between">
+			  <span class="text-gray-600">Total Inquiries:</span>
+			  <span class="font-semibold">${totalInquiriesMonthlyZone}</span>
+			</div>
+			<div class="flex justify-between">
+			  <span class="text-gray-600">Assignee:</span>
+			  <span class="font-semibold text-sm truncate ml-2">${escapeHtml(zoneMonthly.assignee)}</span>
+			</div>
+		  </div>
+		  <div class="space-y-2">
+			<div>
+			  <div class="flex justify-between mb-1">
+				<span class="text-xs font-medium text-gray-600">Missed Reply</span>
+				<span class="text-xs font-bold text-gray-700">${missedReplyPercentMonthly}%</span>
+			  </div>
+			  <div class="w-full bg-gray-200 rounded-full h-1.5">
+				<div class="${zoneMonthly.bgColor} h-1.5 rounded-full transition-all duration-300" style="width:${Math.min(missedReplyPercentMonthly, 100)}%"></div>
+			  </div>
+			</div>
+		  </div>
+		`;
         card.addEventListener('click', () => openModal(zoneMonthly, zoneDaily));
         zoneCards.appendChild(card);
       });
