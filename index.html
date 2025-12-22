@@ -319,28 +319,31 @@ function getAvatarUrl(name, index) {
 }
 
 function calculateTopPerformers(data, count) {
-  count = count || 3;
-  if (!data || !Array.isArray(data) || data.length === 0) return [];
-  var performersWithScore = data.filter(function(emp) { return emp && emp.employee; }).map(function(emp) {
-    var totalDeals = Number(emp.totaldeal) || 0;
-    var totalErrors = Number(emp.totalerror) || 0;
-    var errorPercent = totalDeals > 0 ? (totalErrors / totalDeals * 100) : 100;
-    return {
-      employee: String(emp.employee || 'Unknown'),
-      wrongPunch: emp.wrongPunch,
-      incorrectStage: emp.incorrectStage,
-      totaldeal: emp.totaldeal,
-      totalerror: emp.totalerror,
-      totalDeals: totalDeals,
-      totalErrors: totalErrors,
-      errorPercent: errorPercent.toFixed(2)
-    };
-  });
-  performersWithScore.sort(function(a, b) {
-    if (parseFloat(a.errorPercent) === parseFloat(b.errorPercent)) return b.totalDeals - a.totalDeals;
-    return parseFloat(a.errorPercent) - parseFloat(b.errorPercent);
-  });
-  return performersWithScore.slice(0, count);
+    count = count || 3;
+    if (!data || !Array.isArray(data) || data.length === 0) return [];
+    var performersWithScore = data.filter(function(emp) {
+        return emp && emp.employee;
+    }).map(function(emp) {
+        var totalDeals = Number(emp.totaldeal) || Number(emp.totalDeal) || 0;
+        // Fix: Calculate totalErrors from wrongPunch + incorrectStage
+        var totalErrors = (Number(emp.wrongPunch) || 0) + (Number(emp.incorrectStage) || 0);
+        var errorPercent = totalDeals > 0 ? (totalErrors / totalDeals * 100) : (totalErrors > 0 ? 100 : 0);
+        return {
+            employee: String(emp.employee || 'Unknown'),
+            wrongPunch: Number(emp.wrongPunch) || 0,
+            incorrectStage: Number(emp.incorrectStage) || 0,
+            totaldeal: emp.totaldeal,
+            totalerror: totalErrors,
+            totalDeals: totalDeals,
+            totalErrors: totalErrors,
+            errorPercent: errorPercent.toFixed(2)
+        };
+    });
+    performersWithScore.sort(function(a, b) {
+        if (parseFloat(a.errorPercent) === parseFloat(b.errorPercent)) return b.totalDeals - a.totalDeals;
+        return parseFloat(a.errorPercent) - parseFloat(b.errorPercent);
+    });
+    return performersWithScore.slice(0, count);
 }
 
 function renderPerformerCard(performer, rank) {
